@@ -65,6 +65,9 @@ dependencies = [
     "authlib>=1.6.0",
     "starlette>=0.47.2",
     "uvicorn-worker>=0.3.0",
+    "marshmallow-enum>=1.5.1",
+    "flask-marshmallow>=1.3.0",
+    "python-dotenv>=1.1.1",
 ]
 
 [dependency-groups]

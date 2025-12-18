@@ -6,6 +6,9 @@ from flask import current_app
 
 from spiffworkflow_backend.config.normalized_environment import normalized_environment
 
+from dotenv import load_dotenv
+
+load_dotenv()
 # Consider: https://flask.palletsprojects.com/en/2.2.x/config/#configuring-from-environment-variables
 #   and from_prefixed_env(), though we want to ensure that these variables are all documented, so that
 #   is a benefit of the status quo and having them all in this file explicitly.
