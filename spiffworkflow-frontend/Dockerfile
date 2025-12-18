@@ -35,7 +35,8 @@ COPY package.json package-lock.json /app/
 RUN npm ci --ignore-scripts
 
 COPY . /app/
-RUN ./bin/build
+# Guard against Windows CRLF line endings checked out on host
+RUN sed -i 's/\r$//' ./bin/build && bash ./bin/build
 
 
 ######################## - FINAL
@@ -60,5 +61,8 @@ COPY docker_build/nginx.conf.template /var/tmp
 # Copy the built static files into the nginx directory
 COPY --from=setup /app/dist /usr/share/nginx/html
 COPY --from=setup /app/bin /app/bin
+
+# Guard against Windows CRLF line endings in runtime scripts
+RUN find /app/bin -type f -maxdepth 1 -exec sed -i 's/\r$//' {} +
 
 CMD ["/app/bin/boot_server_in_docker"]

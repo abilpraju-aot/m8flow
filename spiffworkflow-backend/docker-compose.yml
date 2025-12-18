@@ -10,48 +10,68 @@
 # SPIFFWORKFLOW_FRONTEND_AUTH_WITH_KEYCLOAK: "true"
 
 services:
-  db:
-    container_name: db
-    image: mysql:8.0.29
-    platform: linux/amd64
-    cap_add:
-      - SYS_NICE
-    restart: "${SPIFFWORKFLOW_BACKEND_DATABASE_DOCKER_RESTART_POLICY:-no}"
+  # db:
+  #   container_name: db
+  #   image: mysql:8.0.29
+  #   platform: linux/amd64
+  #   cap_add:
+  #     - SYS_NICE
+  #   restart: "${SPIFFWORKFLOW_BACKEND_DATABASE_DOCKER_RESTART_POLICY:-no}"
+  #   environment:
+  #     - MYSQL_DATABASE=${SPIFFWORKFLOW_BACKEND_DATABASE_NAME:-spiffworkflow_backend_development}
+  #     - MYSQL_ROOT_PASSWORD=${SPIFFWORKFLOW_BACKEND_MYSQL_ROOT_DATABASE:-my-secret-pw}
+  #   networks:
+  #     - spiffworkflow
+  #   ports:
+  #     - "7003:3306"
+  #   volumes:
+  #     - spiffworkflow_backend:/var/lib/mysql
+  #   healthcheck:
+  #     test: mysql --user=root --password=${SPIFFWORKFLOW_BACKEND_MYSQL_ROOT_DATABASE:-my-secret-pw} -e 'select 1' ${SPIFFWORKFLOW_BACKEND_DATABASE_NAME:-spiffworkflow_backend_development}
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 10
+  
+  spiffdb:
+    container_name: spiffdb
+    image: postgres:11
     environment:
-      - MYSQL_DATABASE=${SPIFFWORKFLOW_BACKEND_DATABASE_NAME:-spiffworkflow_backend_development}
-      - MYSQL_ROOT_PASSWORD=${SPIFFWORKFLOW_BACKEND_MYSQL_ROOT_DATABASE:-my-secret-pw}
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
     networks:
       - spiffworkflow
     ports:
-      - "7003:3306"
+      - "7003:5432"
     volumes:
-      - spiffworkflow_backend:/var/lib/mysql
+      - spiffworkflow_backend:/var/lib/postgresql/data1
     healthcheck:
-      test: mysql --user=root --password=${SPIFFWORKFLOW_BACKEND_MYSQL_ROOT_DATABASE:-my-secret-pw} -e 'select 1' ${SPIFFWORKFLOW_BACKEND_DATABASE_NAME:-spiffworkflow_backend_development}
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 10s
       timeout: 5s
       retries: 10
+    restart: always
 
   spiffworkflow-backend: &spiffworkflow-backend
     container_name: spiffworkflow-backend
-    profiles:
-      - run
+    restart: always
     depends_on:
-      db:
+      spiffdb:
         condition: service_healthy
     build:
       context: .
     environment:
       - FLASK_DEBUG=0
       - FLASK_SESSION_SECRET_KEY=${FLASK_SESSION_SECRET_KEY:-e7711a3ba96c46c68e084a86952de16f}
-      - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__identifier=default
-      - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__label=internal openid
-      - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__uri=${SPIFFWORKFLOW_BACKEND_URL:-http://localhost:7000}/openid
-      - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__additional_valid_issuers__0=http://host.docker.internal:7000/openid
+      - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__identifier=keycloak
+      - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__label=Keycloak Login
+      - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__uri=${KEYCLOAK_URL:-http://localhost:7002}/realms/spiffworkflow-local
+      - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__internal_uri=http://keycloak:8080/realms/spiffworkflow-local
+      - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__additional_valid_issuers__0=${KEYCLOAK_URL:-http://localhost:7002}/realms/spiffworkflow-local
       - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__client_id=spiffworkflow-backend
       - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__client_secret=JXeQExm0JhQPLumgHtIIqf52bDalHz0q
       - SPIFFWORKFLOW_BACKEND_BPMN_SPEC_ABSOLUTE_DIR=/app/process_models
-      - SPIFFWORKFLOW_BACKEND_DATABASE_URI=mysql+mysqldb://root:${SPIFFWORKFLOW_BACKEND_MYSQL_ROOT_DATABASE:-my-secret-pw}@db:3306/${SPIFFWORKFLOW_BACKEND_DATABASE_NAME:-spiffworkflow_backend_development}
+      - SPIFFWORKFLOW_BACKEND_DATABASE_URI=postgresql://postgres:postgres@spiffdb:5432/postgres
       - SPIFFWORKFLOW_BACKEND_ENV=${SPIFFWORKFLOW_BACKEND_ENV:-local_development}
       - SPIFFWORKFLOW_BACKEND_LOAD_FIXTURE_DATA=${SPIFFWORKFLOW_BACKEND_LOAD_FIXTURE_DATA:-false}
       - SPIFFWORKFLOW_BACKEND_PERMISSIONS_FILE_NAME=${SPIFFWORKFLOW_BACKEND_PERMISSIONS_FILE_NAME:-acceptance_tests.yml}

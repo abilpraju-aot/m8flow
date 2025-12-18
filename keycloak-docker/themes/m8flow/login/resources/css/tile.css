@@ -1,0 +1,19 @@
+/* M8Flow Tile Styles */
+.pf-c-tile {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 0.5rem 0;
+}
+
+.pf-c-tile__header {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.pf-c-tile__icon {
+    margin-right: 0.5rem;
+}
+
+
+

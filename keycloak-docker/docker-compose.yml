@@ -1,0 +1,80 @@
+volumes:
+  keycloak_data:
+  keycloak_custom_data:
+
+services:
+  # PostgreSQL database for Keycloak
+  keycloak-db:
+    container_name: keycloak-db
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${KEYCLOAK_DB_NAME:-keycloak}
+      POSTGRES_USER: ${KEYCLOAK_DB_USER:-keycloak}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD:-keycloak}
+    volumes:
+      - keycloak_data:/var/lib/postgresql/data
+    networks:
+      - spiffworkflow
+    ports:
+      - "${KEYCLOAK_DB_PORT:-7004}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KEYCLOAK_DB_USER:-keycloak}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: always
+
+  # Build custom Keycloak image with themes
+  keycloak-customizations:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - keycloak_custom_data:/custom
+    command: /bin/sh
+    tty: true
+    stdin_open: true
+    networks:
+      - spiffworkflow
+
+  keycloak:
+    container_name: keycloak
+    image: quay.io/keycloak/keycloak:${KEYCLOAK_VERSION:-26.0.7}
+    restart: unless-stopped
+    volumes:
+      - keycloak_custom_data:/keycloak_custom_data
+    entrypoint: ["/bin/bash", "-c", "/keycloak_custom_data/start-keycloak.sh"]
+    environment:
+      - KEYCLOAK_ADMIN=${KEYCLOAK_ADMIN_USER:-admin}
+      - KEYCLOAK_ADMIN_PASSWORD=${KEYCLOAK_ADMIN_PASSWORD:-admin}
+      - KEYCLOAK_START_MODE=${KEYCLOAK_START_MODE:-start-dev}
+      - KC_HEALTH_ENABLED=true
+      - KEYCLOAK_LOGLEVEL=${KEYCLOAK_LOGLEVEL:-INFO}
+      - ROOT_LOGLEVEL=${KEYCLOAK_LOGLEVEL:-INFO}
+      - PROXY_ADDRESS_FORWARDING=true
+      - KC_FEATURES=token-exchange,admin-fine-grained-authz
+      # PostgreSQL Configuration
+      - KC_DB=postgres
+      - KC_DB_URL_HOST=keycloak-db
+      - KC_DB_URL_PORT=5432
+      - KC_DB_URL_DATABASE=${KEYCLOAK_DB_NAME:-keycloak}
+      - KC_DB_USERNAME=${KEYCLOAK_DB_USER:-keycloak}
+      - KC_DB_PASSWORD=${KEYCLOAK_DB_PASSWORD:-keycloak}
+    ports:
+      - "${KEYCLOAK_PORT:-7002}:8080"   # Keycloak web interface
+    networks:
+      - spiffworkflow
+    depends_on:
+      - keycloak-db
+      - keycloak-customizations
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health/ready || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 60s
+
+networks:
+  spiffworkflow:
+    driver: bridge
+
