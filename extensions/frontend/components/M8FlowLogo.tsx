@@ -1,12 +1,13 @@
-import { Stack, Typography } from '@mui/material';
-// M8Flow: Import M8Flow logo instead of Spiff icon
-// import SpiffIcon from '../assets/icons/spiff-icon-cyan.svg';
-
 /**
- * The Logo - Modified for M8Flow
- * M8Flow: This component now shows M8Flow branding
+ * M8Flow Logo Component
+ * 
+ * Displays the M8Flow branding in the sidebar
  */
-export default function SpiffLogo() {
+
+import React from 'react';
+import { Stack, Typography } from '@mui/material';
+
+export const M8FlowLogo: React.FC = () => {
   return (
     <Stack
       direction="row"
@@ -46,4 +47,7 @@ export default function SpiffLogo() {
       </Typography>
     </Stack>
   );
-}
+};
+
+export default M8FlowLogo;
+

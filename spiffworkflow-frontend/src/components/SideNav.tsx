@@ -118,6 +118,8 @@ function SideNav({
     selectedTab = routeIdentifiers.MESSAGES;
   } else if (location.pathname.startsWith('/configuration')) {
     selectedTab = routeIdentifiers.CONFIGURATION;
+  } else if (location.pathname === '/sample-page') {
+    selectedTab = 'm8flow-sample';  // M8Flow: Custom page route
   }
 
   const versionInfo = appVersionInfo();
@@ -229,6 +231,13 @@ function SideNav({
         targetUris.secretListPath,
         targetUris.authenticationListPath,
       ],
+    },
+    // M8Flow: Custom navigation item
+    {
+      text: 'Sample Page',
+      icon: <Extension />,
+      route: '/sample-page',
+      id: 'm8flow-sample',
     },
   ];
 

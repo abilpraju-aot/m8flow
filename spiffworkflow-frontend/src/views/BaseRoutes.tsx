@@ -32,6 +32,8 @@ import Extension from './Extension';
 import ProcessGroupNew from './ProcessGroupNew';
 import ProcessGroupEdit from './ProcessGroupEdit';
 import ProcessModelNewExperimental from './ProcessModelNewExperimental';
+// M8Flow: Import custom views
+import { SampleView } from '@m8flow/views';
 
 type OwnProps = {
   setAdditionalNavElement: Function;
@@ -135,6 +137,8 @@ export default function BaseRoutes({
           element={<Configuration extensionUxElements={extensionUxElements} />}
         />
         <Route path="/authentication-list" element={<AuthenticationList />} />
+        {/* M8Flow: Custom routes */}
+        <Route path="/sample-page" element={<SampleView />} />
         <Route path="/secrets" element={<SecretList />} />{' '}
         <Route path="/secrets/new" element={<SecretNew />} />
         <Route path="/secrets/:secret_identifier" element={<SecretShow />} />
