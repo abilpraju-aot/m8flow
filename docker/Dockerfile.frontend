@@ -1,0 +1,32 @@
+# M8Flow Frontend Dockerfile
+FROM node:20-slim
+
+# Set working directory
+WORKDIR /app
+
+# Copy frontend code
+COPY spiffworkflow-frontend/package*.json ./
+COPY spiffworkflow-frontend/ ./
+
+# Copy M8Flow specific configs
+COPY spiffworkflow-frontend/vite.config.m8flow.ts ./vite.config.ts
+COPY spiffworkflow-frontend/tsconfig.m8flow.json ./tsconfig.json
+COPY spiffworkflow-frontend/package.m8flow.json ./package.m8flow.json
+
+# Copy M8Flow extensions
+COPY extensions/frontend /app/extensions/frontend
+COPY integration/frontend /app/integration/frontend
+
+# Install dependencies
+RUN npm ci
+
+# Expose port
+EXPOSE 7001
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:7001 || exit 1
+
+# Default command (development)
+CMD ["npm", "start"]
+

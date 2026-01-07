@@ -1,0 +1,37 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@m8flow/components": ["../extensions/frontend/components"],
+      "@m8flow/components/*": ["../extensions/frontend/components/*"],
+      "@m8flow/views": ["../extensions/frontend/views"],
+      "@m8flow/views/*": ["../extensions/frontend/views/*"],
+      "@m8flow/hooks": ["../extensions/frontend/hooks"],
+      "@m8flow/hooks/*": ["../extensions/frontend/hooks/*"],
+      "@m8flow/services": ["../extensions/frontend/services"],
+      "@m8flow/services/*": ["../extensions/frontend/services/*"],
+      "@m8flow/themes": ["../extensions/frontend/themes"],
+      "@m8flow/themes/*": ["../extensions/frontend/themes/*"],
+      "@m8flow/plugins": ["../extensions/frontend/plugins"],
+      "@m8flow/plugins/*": ["../extensions/frontend/plugins/*"],
+      "@m8flow/config": ["../extensions/frontend/config"],
+      "@m8flow/config/*": ["../extensions/frontend/config/*"],
+      "@m8flow/types": ["../extensions/frontend/types"],
+      "@m8flow/types/*": ["../extensions/frontend/types/*"],
+      "@m8flow/utils": ["../extensions/frontend/utils"],
+      "@m8flow/utils/*": ["../extensions/frontend/utils/*"],
+      "@m8flow/contexts": ["../extensions/frontend/contexts"],
+      "@m8flow/contexts/*": ["../extensions/frontend/contexts/*"],
+      "@m8flow/integration": ["../integration/frontend"],
+      "@m8flow/integration/*": ["../integration/frontend/*"]
+    }
+  },
+  "include": [
+    "src",
+    "test/vitest.setup.ts",
+    "../extensions/frontend/**/*",
+    "../integration/frontend/**/*"
+  ]
+}
+

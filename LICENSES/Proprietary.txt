@@ -1,0 +1,30 @@
+M8Flow Proprietary License
+
+Copyright (c) 2024 AOT Technologies
+
+All rights reserved.
+
+The following components are proprietary and confidential:
+- extensions/
+- integration/
+- config/
+- docker/ (M8Flow-specific configurations)
+- deployment/
+- M8Flow branding, documentation, and customizations
+
+This software and associated documentation files (the "Software") are proprietary
+to AOT Technologies and are licensed, not sold.
+
+RESTRICTIONS:
+1. You may not copy, modify, merge, publish, distribute, sublicense, or sell
+   copies of the Software without explicit written permission from AOT Technologies.
+
+2. You may not reverse engineer, decompile, or disassemble the Software.
+
+3. All rights not expressly granted are reserved by AOT Technologies.
+
+For licensing inquiries, contact:
+AOT Technologies
+Email: legal@aot-technologies.com
+Website: https://aot-technologies.com
+

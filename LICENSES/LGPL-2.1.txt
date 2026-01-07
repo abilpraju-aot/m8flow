@@ -1,0 +1,10 @@
+GNU LESSER GENERAL PUBLIC LICENSE
+Version 2.1, February 1999
+
+This license applies to the SpiffArena components (spiffworkflow-backend and spiffworkflow-frontend directories).
+
+For the full text of the LGPL-2.1 license, see:
+https://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt
+
+Copyright (c) 2023 Sartography
+

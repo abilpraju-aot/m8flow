@@ -1,0 +1,88 @@
+version: '3.8'
+
+services:
+  # Database
+  mysql:
+    image: mysql:8.0
+    container_name: m8flow-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-spiffworkflow}
+      MYSQL_USER: ${MYSQL_USER:-spiffuser}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-spiffpass}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - m8flow
+
+  # Backend
+  backend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.backend
+    container_name: m8flow-backend
+    environment:
+      SPIFFWORKFLOW_BACKEND_DATABASE_TYPE: mysql
+      SPIFFWORKFLOW_BACKEND_DATABASE_URI: mysql+pymysql://${MYSQL_USER:-spiffuser}:${MYSQL_PASSWORD:-spiffpass}@mysql:3306/${MYSQL_DATABASE:-spiffworkflow}
+      SPIFFWORKFLOW_BACKEND_PERMISSIONS_FILE_NAME: ""
+      SPIFFWORKFLOW_BACKEND_URL: http://localhost:${BACKEND_PORT:-8000}
+      SPIFFWORKFLOW_BACKEND_OPEN_ID_SERVER_URL: ""
+      
+      # M8Flow specific configuration
+      M8FLOW_ENABLE_MULTI_TENANCY: ${M8FLOW_ENABLE_MULTI_TENANCY:-true}
+      M8FLOW_ENABLE_INTEGRATIONS: ${M8FLOW_ENABLE_INTEGRATIONS:-true}
+    ports:
+      - "${BACKEND_PORT:-8000}:8000"
+    volumes:
+      - ../spiffworkflow-backend:/app/spiffworkflow-backend
+      - ../extensions/backend:/app/extensions/backend
+      - ../integration/backend:/app/integration/backend
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - m8flow
+    command: poetry run python app.py
+
+  # Frontend
+  frontend:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.frontend
+    container_name: m8flow-frontend
+    environment:
+      VITE_BACKEND_URL: http://localhost:${BACKEND_PORT:-8000}
+      HOST: 0.0.0.0
+      PORT: ${FRONTEND_PORT:-7001}
+      
+      # M8Flow specific configuration
+      M8FLOW_ENABLE_MULTI_TENANCY: ${M8FLOW_ENABLE_MULTI_TENANCY:-true}
+      M8FLOW_ENABLE_INTEGRATIONS: ${M8FLOW_ENABLE_INTEGRATIONS:-true}
+    ports:
+      - "${FRONTEND_PORT:-7001}:7001"
+    volumes:
+      - ../spiffworkflow-frontend/src:/app/src
+      - ../extensions/frontend:/app/extensions/frontend
+      - ../integration/frontend:/app/integration/frontend
+      - ../spiffworkflow-frontend/vite.config.m8flow.ts:/app/vite.config.ts
+    depends_on:
+      - backend
+    networks:
+      - m8flow
+    command: npm start
+
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  m8flow:
+    driver: bridge
+

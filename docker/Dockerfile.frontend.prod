@@ -1,0 +1,47 @@
+# M8Flow Frontend Production Dockerfile
+
+# Build stage
+FROM node:20-slim as builder
+
+WORKDIR /app
+
+# Copy package files
+COPY spiffworkflow-frontend/package*.json ./
+COPY spiffworkflow-frontend/ ./
+
+# Copy M8Flow configs
+COPY spiffworkflow-frontend/vite.config.m8flow.ts ./vite.config.ts
+COPY spiffworkflow-frontend/tsconfig.m8flow.json ./tsconfig.json
+
+# Copy extensions
+COPY extensions/frontend /app/extensions/frontend
+COPY integration/frontend /app/integration/frontend
+
+# Install dependencies and build
+RUN npm ci && npm run build -- --config vite.config.m8flow.ts
+
+# Production stage
+FROM nginx:alpine
+
+# Copy built files
+COPY --from=builder /app/dist /usr/share/nginx/html
+
+# Copy nginx configuration
+COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
+
+# Create non-root user
+RUN chown -R nginx:nginx /usr/share/nginx/html && \
+    chown -R nginx:nginx /var/cache/nginx && \
+    chown -R nginx:nginx /var/log/nginx && \
+    touch /var/run/nginx.pid && \
+    chown -R nginx:nginx /var/run/nginx.pid
+
+USER nginx
+
+EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD wget --quiet --tries=1 --spider http://localhost:80 || exit 1
+
+CMD ["nginx", "-g", "daemon off;"]
+

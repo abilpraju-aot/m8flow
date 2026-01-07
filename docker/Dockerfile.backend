@@ -1,0 +1,48 @@
+# M8Flow Backend Dockerfile
+FROM python:3.11-slim
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    build-essential \
+    default-libmysqlclient-dev \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH="/root/.local/bin:$PATH"
+
+# Set working directory
+WORKDIR /app
+
+# Copy backend code
+COPY spiffworkflow-backend /app/spiffworkflow-backend
+COPY spiff-arena-common /app/spiff-arena-common
+
+# Copy M8Flow extensions
+COPY extensions/backend /app/extensions/backend
+COPY integration/backend /app/integration/backend
+
+# Install dependencies
+WORKDIR /app/spiffworkflow-backend
+RUN poetry config virtualenvs.create false \
+    && poetry install --no-interaction --no-ansi
+
+# Install UV for faster dependency management
+RUN pip install uv
+
+# Expose port
+EXPOSE 8000
+
+# Set Python path to include extensions
+ENV PYTHONPATH="/app/extensions/backend:/app/integration/backend:$PYTHONPATH"
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/v1.0/status || exit 1
+
+# Default command
+CMD ["poetry", "run", "python", "app.py"]
+

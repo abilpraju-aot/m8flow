@@ -65,9 +65,9 @@ services:
       - FLASK_SESSION_SECRET_KEY=${FLASK_SESSION_SECRET_KEY:-e7711a3ba96c46c68e084a86952de16f}
       # - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__identifier=keycloak
       # - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__label=Keycloak Login
-      # - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__uri=${KEYCLOAK_URL:-http://192.168.2.100:7002}/realms/spiffworkflow-local
-      # - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__internal_uri=http://192.168.2.100:7002/realms/spiffworkflow-local
-      # - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__additional_valid_issuers__0=${KEYCLOAK_URL:-http://192.168.2.100:7002}/realms/spiffworkflow-local
+      # - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__uri=${KEYCLOAK_URL:-http://192.168.29.247:7002}/realms/spiffworkflow-local
+      # - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__internal_uri=http://192.168.29.247:7002/realms/spiffworkflow-local
+      # - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__additional_valid_issuers__0=${KEYCLOAK_URL:-http://192.168.29.247:7002}/realms/spiffworkflow-local
       # - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__client_id=spiffworkflow-backend
       # - SPIFFWORKFLOW_BACKEND_AUTH_CONFIGS__0__client_secret=JXeQExm0JhQPLumgHtIIqf52bDalHz0q
       - SPIFFWORKFLOW_BACKEND_BPMN_SPEC_ABSOLUTE_DIR=/app/process_models
@@ -79,12 +79,12 @@ services:
         # the background scheduler picks up process instances that we set in a certain state and then runs them like running not_started instances
         # that are required for the process instance filter test. So for now do not run it. we may want to find another way around in the future
       - SPIFFWORKFLOW_BACKEND_RUN_BACKGROUND_SCHEDULER_IN_CREATE_APP=false
-      - SPIFFWORKFLOW_BACKEND_URL_FOR_FRONTEND=${SPIFFWORKFLOW_BACKEND_URL_FOR_FRONTEND:-http://192.168.2.100:7001}
+      - SPIFFWORKFLOW_BACKEND_URL_FOR_FRONTEND=${SPIFFWORKFLOW_BACKEND_URL_FOR_FRONTEND:-http://192.168.29.247:7001}
       - SPIFFWORKFLOW_BACKEND_UPGRADE_DB=true
-      - SPIFFWORKFLOW_BACKEND_URL=${SPIFFWORKFLOW_BACKEND_URL:-http://192.168.2.100:7000}
+      - SPIFFWORKFLOW_BACKEND_URL=${SPIFFWORKFLOW_BACKEND_URL:-http://192.168.29.247:7000}
       - SPIFFWORKFLOW_BACKEND_OPEN_ID_CLIENT_ID=spiffworkflow-backend
       - SPIFFWORKFLOW_BACKEND_OPEN_ID_CLIENT_SECRET_KEY=JXeQExm0JhQPLumgHtIIqf52bDalHz0q
-      - SPIFFWORKFLOW_BACKEND_OPEN_ID_SERVER_URL=http://192.168.2.100:7002/realms/spiffworkflow-local
+      - SPIFFWORKFLOW_BACKEND_OPEN_ID_SERVER_URL=http://192.168.29.247:7002/realms/spiffworkflow-local
     ports:
       - "7000:7000"
     networks:
@@ -93,7 +93,7 @@ services:
       - ${SPIFFWORKFLOW_BACKEND_BPMN_SPEC_ABSOLUTE_DIR:-../../sample-process-models}:/app/process_models
       - ./log:/app/log
     healthcheck:
-      test: curl 192.168.2.100:7000/v1.0/status --fail
+      test: curl 192.168.29.247:7000/v1.0/status --fail
       interval: 10s
       timeout: 5s
       retries: 20

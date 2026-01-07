@@ -2,7 +2,6 @@ import React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import App from './App';
-import { wrapAppWithExtensions } from '@m8flow/integration/App.extensions';
 
 import './index.scss';
 import './index.css';
@@ -39,15 +38,12 @@ const overrideTheme = createTheme({
   },
 });
 
-// Wrap App component with M8Flow extensions
-const M8FlowApp = wrapAppWithExtensions(App);
-
 const doRender = () => {
   root.render(
     <React.StrictMode>
       <ThemeProvider theme={defaultTheme}>
         <ThemeProvider theme={overrideTheme}>
-          <M8FlowApp />
+          <App />
         </ThemeProvider>
       </ThemeProvider>
     </React.StrictMode>,
@@ -55,4 +51,3 @@ const doRender = () => {
 };
 
 doRender();
-

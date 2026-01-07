@@ -1,0 +1,7 @@
+{
+  "root": ".",
+  "entryPoint": "src/index.m8flow.tsx",
+  "htmlTemplate": "index.m8flow.html",
+  "description": "M8Flow configuration that uses separate entry point to inject extensions without modifying upstream code"
+}
+

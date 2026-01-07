@@ -1,0 +1,60 @@
+# M8Flow Backend Production Dockerfile
+FROM python:3.11-slim as builder
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    git \
+    curl \
+    build-essential \
+    default-libmysqlclient-dev \
+    libpq-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Poetry
+RUN curl -sSL https://install.python-poetry.org | python3 -
+ENV PATH="/root/.local/bin:$PATH"
+
+WORKDIR /build
+
+# Copy and install dependencies
+COPY spiffworkflow-backend/pyproject.toml spiffworkflow-backend/poetry.lock ./
+RUN poetry export -f requirements.txt --output requirements.txt --without-hashes
+
+# Production image
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y \
+    default-libmysqlclient-dev \
+    libpq-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+# Copy requirements and install
+COPY --from=builder /build/requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY spiffworkflow-backend /app/spiffworkflow-backend
+COPY extensions/backend /app/extensions/backend
+COPY integration/backend /app/integration/backend
+
+# Set Python path
+ENV PYTHONPATH="/app/extensions/backend:/app/integration/backend:$PYTHONPATH"
+
+# Create non-root user
+RUN useradd -m -u 1000 m8flow && \
+    chown -R m8flow:m8flow /app
+
+USER m8flow
+
+WORKDIR /app/spiffworkflow-backend
+
+EXPOSE 8000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD curl -f http://localhost:8000/v1.0/status || exit 1
+
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "--workers", "4", "--timeout", "120", "app:app"]
+
