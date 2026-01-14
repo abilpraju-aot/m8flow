@@ -1,0 +1,154 @@
+/**
+ * M8Flow SCSS Variables
+ *
+ * These variables can be imported into SCSS files for consistent branding.
+ * They mirror the values in M8FlowTheme.ts for CSS-based styling.
+ */
+
+// =============================================================================
+// Brand Colors
+// =============================================================================
+
+// Primary - M8Flow Blue
+$m8-primary: #1e40af;
+$m8-primary-light: #3b82f6;
+$m8-primary-dark: #1e3a8a;
+
+// Secondary - M8Flow Purple
+$m8-secondary: #7c3aed;
+$m8-secondary-light: #a78bfa;
+$m8-secondary-dark: #5b21b6;
+
+// Accent - M8Flow Gold
+$m8-accent: #f59e0b;
+$m8-accent-light: #fcd34d;
+$m8-accent-dark: #d97706;
+
+// =============================================================================
+// Semantic Colors
+// =============================================================================
+
+$m8-success: #16a34a;
+$m8-success-light: #4ade80;
+$m8-success-dark: #15803d;
+
+$m8-warning: #ea580c;
+$m8-warning-light: #fb923c;
+$m8-warning-dark: #c2410c;
+
+$m8-error: #dc2626;
+$m8-error-light: #f87171;
+$m8-error-dark: #b91c1c;
+
+$m8-info: #2563eb;
+$m8-info-light: #60a5fa;
+$m8-info-dark: #1d4ed8;
+
+// =============================================================================
+// Neutral Colors
+// =============================================================================
+
+$m8-white: #ffffff;
+$m8-black: #000000;
+
+$m8-gray-50: #f9fafb;
+$m8-gray-100: #f3f4f6;
+$m8-gray-200: #e5e7eb;
+$m8-gray-300: #d1d5db;
+$m8-gray-400: #9ca3af;
+$m8-gray-500: #6b7280;
+$m8-gray-600: #4b5563;
+$m8-gray-700: #374151;
+$m8-gray-800: #1f2937;
+$m8-gray-900: #111827;
+
+// =============================================================================
+// Background Colors (Light Mode)
+// =============================================================================
+
+$m8-bg-default: $m8-gray-50;
+$m8-bg-paper: $m8-white;
+$m8-bg-nav: $m8-white;
+$m8-bg-elevated: $m8-white;
+
+// =============================================================================
+// Background Colors (Dark Mode)
+// =============================================================================
+
+$m8-dark-bg-default: #0f172a;
+$m8-dark-bg-paper: #1e293b;
+$m8-dark-bg-nav: #1e293b;
+$m8-dark-bg-elevated: #334155;
+
+// =============================================================================
+// Typography
+// =============================================================================
+
+$m8-font-family: 'Inter', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+
+$m8-font-size-xs: 0.75rem;   // 12px
+$m8-font-size-sm: 0.875rem;  // 14px
+$m8-font-size-base: 1rem;    // 16px
+$m8-font-size-lg: 1.125rem;  // 18px
+$m8-font-size-xl: 1.25rem;   // 20px
+$m8-font-size-2xl: 1.5rem;   // 24px
+$m8-font-size-3xl: 1.875rem; // 30px
+$m8-font-size-4xl: 2rem;     // 32px
+
+$m8-font-weight-normal: 400;
+$m8-font-weight-medium: 500;
+$m8-font-weight-semibold: 600;
+$m8-font-weight-bold: 700;
+
+// =============================================================================
+// Spacing
+// =============================================================================
+
+$m8-spacing-1: 0.25rem;  // 4px
+$m8-spacing-2: 0.5rem;   // 8px
+$m8-spacing-3: 0.75rem;  // 12px
+$m8-spacing-4: 1rem;     // 16px
+$m8-spacing-5: 1.25rem;  // 20px
+$m8-spacing-6: 1.5rem;   // 24px
+$m8-spacing-8: 2rem;     // 32px
+$m8-spacing-10: 2.5rem;  // 40px
+$m8-spacing-12: 3rem;    // 48px
+
+// =============================================================================
+// Border Radius
+// =============================================================================
+
+$m8-radius-sm: 4px;
+$m8-radius-md: 8px;
+$m8-radius-lg: 12px;
+$m8-radius-xl: 16px;
+$m8-radius-full: 9999px;
+
+// =============================================================================
+// Shadows
+// =============================================================================
+
+$m8-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$m8-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+$m8-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+$m8-shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+
+// =============================================================================
+// Transitions
+// =============================================================================
+
+$m8-transition-fast: 150ms ease-in-out;
+$m8-transition-normal: 250ms ease-in-out;
+$m8-transition-slow: 350ms ease-in-out;
+
+// =============================================================================
+// Z-Index
+// =============================================================================
+
+$m8-z-dropdown: 1000;
+$m8-z-sticky: 1020;
+$m8-z-fixed: 1030;
+$m8-z-modal-backdrop: 1040;
+$m8-z-modal: 1050;
+$m8-z-popover: 1060;
+$m8-z-tooltip: 1070;

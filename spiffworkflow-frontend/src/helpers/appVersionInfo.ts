@@ -12,7 +12,13 @@ const appVersionInfo = () => {
       versionInfoContentString &&
       versionInfoContentString !== '%VITE_VERSION_INFO%'
     ) {
-      versionInfo = JSON.parse(versionInfoContentString);
+      try {
+        versionInfo = JSON.parse(versionInfoContentString);
+      } catch (error) {
+        console.warn('Failed to parse version info:', versionInfoContentString, error);
+        // Return empty object on parse error
+        versionInfo = {};
+      }
     }
   }
 

@@ -8,7 +8,7 @@
     "resolveJsonModule": true,
 
     "lib": ["dom", "dom.iterable", "esnext"],
-    "types": ["vite/client", "node", "vitest/globals"],
+    "types": ["vite/client", "node"],
 
     "module": "esnext",
     "target": "ESNext",
@@ -18,9 +18,9 @@
 
     "baseUrl": ".",
     "paths": {
-      "@m8flow/*": ["../extensions/frontend/src/*"],
-      "@spiff/*": ["src/*"]
+      "@m8flow/*": ["src/*"],
+      "@spiff/*": ["../../spiffworkflow-frontend/src/*"]
     }
   },
-  "include": ["src", "test/vitest.setup.ts", "../extensions/frontend/src"]
+  "include": ["src", "../../spiffworkflow-frontend/src"]
 }

@@ -33,6 +33,9 @@ import ProcessGroupNew from './ProcessGroupNew';
 import ProcessGroupEdit from './ProcessGroupEdit';
 import ProcessModelNewExperimental from './ProcessModelNewExperimental';
 
+// M8Flow: Import custom routes from extensions
+import { m8flowRoutes } from '@m8flow/routes';
+
 type OwnProps = {
   setAdditionalNavElement: Function;
   extensionUxElements?: UiSchemaUxElement[] | null;
@@ -74,6 +77,10 @@ export default function BaseRoutes({
     >
       <ErrorDisplay />
       <Routes>
+        {/* M8Flow: Custom routes from extensions/frontend */}
+        {m8flowRoutes.map((route) => (
+          <Route key={route.path} path={route.path} element={route.element} />
+        ))}
         {extensionRoutes}
         <Route path="/about" element={<About />} />
         <Route

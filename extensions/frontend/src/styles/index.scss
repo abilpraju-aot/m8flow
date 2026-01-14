@@ -1,0 +1,105 @@
+/**
+ * M8Flow Global Styles
+ *
+ * This file contains M8Flow-specific styles that extend/override upstream.
+ * NOTE: Upstream styles are imported in index.tsx before this file.
+ */
+
+// Import M8Flow variables
+@use '../theme/variables.scss' as m8;
+
+// =============================================================================
+// M8Flow Root Styles
+// =============================================================================
+
+.m8flow-root {
+  min-height: 100vh;
+}
+
+// =============================================================================
+// M8Flow Brand Overrides
+// =============================================================================
+
+.m8-primary {
+  color: m8.$m8-primary !important;
+}
+
+.m8-bg-primary {
+  background-color: m8.$m8-primary !important;
+}
+
+// =============================================================================
+// M8Flow Dashboard Styles
+// =============================================================================
+
+.m8-dashboard {
+  padding: m8.$m8-spacing-6;
+}
+
+.m8-dashboard-header {
+  margin-bottom: m8.$m8-spacing-6;
+
+  h1 {
+    font-size: m8.$m8-font-size-3xl;
+    font-weight: m8.$m8-font-weight-bold;
+    color: m8.$m8-gray-900;
+    margin: 0 0 m8.$m8-spacing-2 0;
+  }
+
+  p {
+    color: m8.$m8-gray-600;
+    margin: 0;
+  }
+}
+
+.m8-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: m8.$m8-spacing-6;
+}
+
+// =============================================================================
+// M8Flow Page Styles
+// =============================================================================
+
+.m8-page {
+  padding: m8.$m8-spacing-6;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.m8-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: m8.$m8-spacing-6;
+  padding-bottom: m8.$m8-spacing-4;
+  border-bottom: 1px solid m8.$m8-gray-200;
+
+  h1 {
+    font-size: m8.$m8-font-size-2xl;
+    font-weight: m8.$m8-font-weight-semibold;
+    margin: 0;
+  }
+}
+
+// =============================================================================
+// M8Flow Utility Classes
+// =============================================================================
+
+.m8-mt-4 { margin-top: m8.$m8-spacing-4; }
+.m8-mt-6 { margin-top: m8.$m8-spacing-6; }
+.m8-mb-4 { margin-bottom: m8.$m8-spacing-4; }
+.m8-mb-6 { margin-bottom: m8.$m8-spacing-6; }
+.m8-p-4 { padding: m8.$m8-spacing-4; }
+.m8-p-6 { padding: m8.$m8-spacing-6; }
+
+.m8-text-primary { color: m8.$m8-primary; }
+.m8-text-muted { color: m8.$m8-gray-500; }
+.m8-text-center { text-align: center; }
+
+.m8-flex { display: flex; }
+.m8-flex-center { display: flex; align-items: center; justify-content: center; }
+.m8-flex-between { display: flex; align-items: center; justify-content: space-between; }
+.m8-gap-2 { gap: m8.$m8-spacing-2; }
+.m8-gap-4 { gap: m8.$m8-spacing-4; }

@@ -35,6 +35,9 @@ import ScrollToTop from './components/ScrollToTop';
 import { createSpiffTheme } from './assets/theme/SpiffTheme';
 import DynamicCSSInjection from './components/DynamicCSSInjection';
 
+// M8Flow: Import M8Flow theme to override Spiff theme
+import { createM8FlowTheme } from '@m8flow/theme';
+
 const fadeIn = 'fadeIn';
 const fadeOutImmediate = 'fadeOutImmediate';
 
@@ -63,8 +66,9 @@ export default function ContainerForExtensions() {
 
   const storedTheme: PaletteMode = (localStorage.getItem('theme') ||
     'light') as PaletteMode;
+  // M8Flow: Use M8Flow theme instead of Spiff theme
   const [globalTheme, setGlobalTheme] = useState(
-    createTheme(createSpiffTheme(storedTheme)),
+    createM8FlowTheme(storedTheme),
   );
   const isDark = globalTheme.palette.mode === 'dark';
 
@@ -100,7 +104,8 @@ export default function ContainerForExtensions() {
 
   const toggleDarkMode = () => {
     const desiredTheme: PaletteMode = isDark ? 'light' : 'dark';
-    setGlobalTheme(createTheme(createSpiffTheme(desiredTheme)));
+    // M8Flow: Use M8Flow theme instead of Spiff theme
+    setGlobalTheme(createM8FlowTheme(desiredTheme));
     localStorage.setItem('theme', desiredTheme);
   };
 

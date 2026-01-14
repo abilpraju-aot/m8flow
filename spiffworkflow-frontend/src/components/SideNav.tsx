@@ -34,6 +34,9 @@ import {
   SettingsApplicationsSharp,
   Extension,
   Flag,
+  Dashboard as DashboardIcon,
+  Business as BusinessIcon,
+  Description as DescriptionIcon,
 } from '@mui/icons-material';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -46,6 +49,9 @@ import {
 import UserService from '../services/UserService';
 import SpiffLogo from './SpiffLogo';
 import SpiffTooltip from './SpiffTooltip';
+
+// M8Flow: Import M8Flow logo (optional - can replace SpiffLogo)
+import { M8FlowLogo } from '@m8flow/components';
 import { UiSchemaUxElement } from '../extension_ui_schema_interfaces';
 import ExtensionUxElementForDisplay from './ExtensionUxElementForDisplay';
 import { useUriListForPermissions } from '../hooks/UriListForPermissions';
@@ -230,6 +236,25 @@ function SideNav({
         targetUris.authenticationListPath,
       ],
     },
+    // M8Flow: Custom navigation items
+    {
+      text: t('m8flow.navigation.dashboard', 'M8Flow'),
+      icon: <DashboardIcon />,
+      route: '/m8flow',
+      id: 'm8flow-dashboard',
+    },
+    {
+      text: t('m8flow.navigation.tenants', 'Tenants'),
+      icon: <BusinessIcon />,
+      route: '/m8flow/tenants',
+      id: 'm8flow-tenants',
+    },
+    {
+      text: t('m8flow.navigation.templates', 'Templates'),
+      icon: <DescriptionIcon />,
+      route: '/m8flow/templates',
+      id: 'm8flow-templates',
+    },
   ];
 
   const extensionHeaderMenuItemElement = (uxElement: UiSchemaUxElement) => {
@@ -324,7 +349,8 @@ function SideNav({
                 }}
               >
                 <MuiLink component={Link} to="/">
-                  <SpiffLogo />
+                  {/* M8Flow: Use M8Flow logo instead of Spiff logo */}
+                  <M8FlowLogo variant="full" />
                 </MuiLink>
               </Typography>
             )}

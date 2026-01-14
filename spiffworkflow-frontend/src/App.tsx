@@ -9,6 +9,9 @@ import ContainerForExtensions from './ContainerForExtensions';
 import PublicRoutes from './views/PublicRoutes';
 import { CONFIGURATION_ERRORS } from './config';
 
+// M8Flow: Import M8Flow config provider
+import { M8FlowConfigProvider } from '@m8flow/config';
+
 const queryClient = new QueryClient();
 
 export default function App() {
@@ -46,7 +49,10 @@ export default function App() {
         <QueryClientProvider client={queryClient}>
           <APIErrorProvider>
             <AbilityContext.Provider value={ability}>
-              <Outlet />
+              {/* M8Flow: Add M8Flow config provider */}
+              <M8FlowConfigProvider>
+                <Outlet />
+              </M8FlowConfigProvider>
               <ReactQueryDevtools initialIsOpen={false} />
             </AbilityContext.Provider>
           </APIErrorProvider>

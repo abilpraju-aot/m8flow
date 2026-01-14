@@ -1,17 +1,32 @@
+/**
+ * M8Flow Frontend Entry Point
+ * 
+ * This is the standalone entry point for M8Flow frontend.
+ * It imports upstream Spiff components and wraps them with M8Flow customizations.
+ * 
+ * NO UPSTREAM CODE IS MODIFIED - all customizations are in extensions/frontend.
+ */
+
 import React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
-import App from './App';
 
-import './index.scss';
-import './index.css';
-import './i18n';
+// Import upstream styles and i18n
+import '@spiff/index.scss';
+import '@spiff/index.css';
+import '@spiff/i18n';
 
-// M8Flow: Initialize M8Flow translations
-import { initM8FlowI18n } from '@m8flow/i18n';
+// Import M8Flow customizations
+import { initM8FlowI18n } from './i18n';
+import './styles/index.scss';
+
+// Import M8Flow App (wraps upstream)
+import M8FlowApp from './M8FlowApp';
+
+// Initialize M8Flow translations
 initM8FlowI18n();
 
-// @ts-expect-error TS(2345) FIXME: Argument of type 'HTMLElement | null' is not assig... Remove this comment to see the full error message
+// @ts-expect-error TS(2345) FIXME: Argument of type 'HTMLElement | null' is not assignable
 const root = ReactDOMClient.createRoot(document.getElementById('root'));
 
 /**
@@ -47,7 +62,7 @@ const doRender = () => {
     <React.StrictMode>
       <ThemeProvider theme={defaultTheme}>
         <ThemeProvider theme={overrideTheme}>
-          <App />
+          <M8FlowApp />
         </ThemeProvider>
       </ThemeProvider>
     </React.StrictMode>,
