@@ -81,7 +81,7 @@ export default function ImportTemplateModal({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth data-testid="import-template-modal">
       <DialogTitle>Import template from zip</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
@@ -96,6 +96,7 @@ export default function ImportTemplateModal({
             onChange={(e) => setName(e.target.value)}
             disabled={loading}
             placeholder="e.g. My Workflow"
+            data-testid="import-template-name-input"
           />
           <FormControl fullWidth size="medium">
             <InputLabel id="import-visibility-label">Visibility</InputLabel>
@@ -105,28 +106,30 @@ export default function ImportTemplateModal({
               value={visibility}
               onChange={(e) => setVisibility(e.target.value as TemplateVisibility)}
               disabled={loading}
+              data-testid="import-template-visibility-select"
             >
               <MenuItem value="PRIVATE">Private</MenuItem>
               <MenuItem value="TENANT">Tenant</MenuItem>
               <MenuItem value="PUBLIC">Public</MenuItem>
             </Select>
           </FormControl>
-          <Button variant="outlined" component="label" disabled={loading}>
+          <Button variant="outlined" component="label" disabled={loading} data-testid="import-template-file-button">
             {file ? file.name : "Choose zip file"}
             <input
               type="file"
               hidden
               accept=".zip"
               onChange={handleFileChange}
+              data-testid="import-template-file-input"
             />
           </Button>
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={handleClose} disabled={loading}>
+        <Button onClick={handleClose} disabled={loading} data-testid="import-template-cancel-button">
           Cancel
         </Button>
-        <Button variant="contained" onClick={handleSubmit} disabled={loading}>
+        <Button variant="contained" onClick={handleSubmit} disabled={loading} data-testid="import-template-submit-button">
           {loading ? "Importing..." : "Import"}
         </Button>
       </DialogActions>

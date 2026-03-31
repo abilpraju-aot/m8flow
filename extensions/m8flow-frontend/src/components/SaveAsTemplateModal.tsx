@@ -125,6 +125,7 @@ export default function SaveAsTemplateModal({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      data-testid="save-as-template-modal"
     >
       <DialogTitle sx={{ fontSize: "1.25rem", fontWeight: 600 }}>
         Save as Template
@@ -142,6 +143,7 @@ export default function SaveAsTemplateModal({
             value={name}
             onChange={(e) => setName(e.target.value)}
             disabled={loading}
+            data-testid="save-template-name-input"
           />
           <TextField
             label="Description"
@@ -152,6 +154,7 @@ export default function SaveAsTemplateModal({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             disabled={loading}
+            data-testid="save-template-description-input"
           />
           <TextField
             label="Category"
@@ -160,6 +163,7 @@ export default function SaveAsTemplateModal({
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             disabled={loading}
+            data-testid="save-template-category-input"
           />
           <TextField
             label="Tags"
@@ -168,6 +172,7 @@ export default function SaveAsTemplateModal({
             value={tags}
             onChange={(e) => setTags(e.target.value)}
             disabled={loading}
+            data-testid="save-template-tags-input"
           />
           <FormControl fullWidth disabled={loading}>
             <InputLabel>Visibility</InputLabel>
@@ -175,6 +180,7 @@ export default function SaveAsTemplateModal({
               value={visibility}
               label="Visibility"
               onChange={(e) => setVisibility(e.target.value as TemplateVisibility)}
+              data-testid="save-template-visibility-select"
             >
               {VISIBILITY_OPTIONS.map((opt) => (
                 <MenuItem key={opt.value} value={opt.value}>
@@ -186,7 +192,7 @@ export default function SaveAsTemplateModal({
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-        <Button onClick={onClose} disabled={loading} variant="outlined">
+        <Button onClick={onClose} disabled={loading} variant="outlined" data-testid="save-template-cancel-button">
           Cancel
         </Button>
         <Button
@@ -194,6 +200,7 @@ export default function SaveAsTemplateModal({
           variant="contained"
           color="primary"
           disabled={loading}
+          data-testid="save-template-submit-button"
         >
           {loading ? "Creating..." : "Create Template"}
         </Button>

@@ -75,7 +75,7 @@ function TemplateDetailsCard({
         <Typography variant="body2" sx={{ fontWeight: 600 }}>
           {template.name}
         </Typography>
-        <Chip size="small" label={`Version: ${template.version}`} variant="outlined" />
+        <Chip size="small" label={`Version: ${template.version}`} variant="outlined" data-testid="template-current-version-chip" />
         {template.category && (
           <Chip size="small" label={`Category: ${template.category}`} variant="outlined" />
         )}
@@ -89,6 +89,7 @@ function TemplateDetailsCard({
                 }
                 variant="outlined"
                 sx={{ height: 24, fontSize: '0.8125rem' }}
+                data-testid="template-visibility-select"
               >
                 {VISIBILITY_OPTIONS.map((opt) => (
                   <MenuItem key={opt.value} value={opt.value}>
@@ -104,13 +105,14 @@ function TemplateDetailsCard({
                 color="primary"
                 onClick={onSaveVisibility}
                 disabled={isSaving}
+                data-testid="template-visibility-save-button"
               >
                 {isSaving ? 'Saving...' : 'Save'}
               </Button>
             )}
           </>
         ) : (
-          <Chip size="small" label={`Visibility: ${template.visibility}`} variant="outlined" />
+          <Chip size="small" label={`Visibility: ${template.visibility}`} variant="outlined" data-testid="template-visibility-readonly-chip" />
         )}
         {template.status && (
           <Chip size="small" label={`Status: ${template.status}`} variant="outlined" />
@@ -133,11 +135,12 @@ function TemplateDetailsCard({
             color="success"
             startIcon={<AddIcon />}
             onClick={onCreateProcessModel}
+            data-testid="template-create-process-model-button"
           >
             Create Process Model
           </Button>
         )}
-        <Button size="small" variant="contained" onClick={onExport}>
+        <Button size="small" variant="contained" onClick={onExport} data-testid="template-export-button">
           Export template
         </Button>
         {canPublish && !template.isPublished && (
@@ -146,6 +149,7 @@ function TemplateDetailsCard({
             variant="contained"
             color="primary"
             onClick={onPublish}
+            data-testid="template-publish-button"
           >
             Publish
           </Button>
@@ -358,7 +362,7 @@ export default function TemplateModelerPage() {
   ];
 
   return (
-    <Box sx={{ px: 2, pl: 3, pb: 3 }}>
+    <Box sx={{ px: 2, pl: 3, pb: 3 }} data-testid="template-modeler-page">
       <Box sx={{ mb: 1 }}>
         <ProcessBreadcrumb hotCrumbs={hotCrumbs} />
       </Box>
@@ -372,6 +376,7 @@ export default function TemplateModelerPage() {
             borderColor: 'divider',
             borderRadius: 1,
           }}
+          data-testid="template-version-switcher"
         >
           <FormControl size="small" sx={{ minWidth: 280 }} disabled={versionsLoading}>
             <InputLabel id="template-version-label">All versions</InputLabel>
@@ -379,6 +384,7 @@ export default function TemplateModelerPage() {
               labelId="template-version-label"
               label="All versions"
               value={template.id}
+              data-testid="template-version-select"
               onChange={(e) => {
                 const selectedId = Number(e.target.value);
                 if (selectedId !== template.id) navigate(`/templates/${selectedId}`);
@@ -442,12 +448,12 @@ export default function TemplateModelerPage() {
         </Alert>
       )}
       {publishSuccess && (
-        <Alert severity="success" sx={{ mb: 1 }} onClose={() => setPublishSuccess(false)}>
+        <Alert severity="success" sx={{ mb: 1 }} onClose={() => setPublishSuccess(false)} data-testid="template-publish-success-alert">
           Template published successfully.
         </Alert>
       )}
       {saveVisibilitySuccess && (
-        <Alert severity="success" sx={{ mb: 1 }} onClose={() => setSaveVisibilitySuccess(false)}>
+        <Alert severity="success" sx={{ mb: 1 }} onClose={() => setSaveVisibilitySuccess(false)} data-testid="template-visibility-update-success-alert">
           Visibility updated successfully.
         </Alert>
       )}

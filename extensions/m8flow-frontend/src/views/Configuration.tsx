@@ -67,10 +67,11 @@ export default function Configuration({ extensionUxElements }: OwnProps) {
   }
 
   return (
-    <>
+    <div data-testid="configuration-page">
       <Tabs
         value={selectedTabIndex}
         onChange={(_, newValue) => setSelectedTabIndex(newValue)}
+        data-testid="configuration-tabs"
       >
         <Can I="GET" a={targetUris.secretListPath} ability={ability}>
           <Tab
@@ -95,6 +96,6 @@ export default function Configuration({ extensionUxElements }: OwnProps) {
           element={<Extension displayErrors={false} />}
         />
       </Routes>
-    </>
+    </div>
   );
 }

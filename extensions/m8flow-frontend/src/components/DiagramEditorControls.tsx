@@ -22,19 +22,19 @@ export default function DiagramEditorControls({
   const { t } = useTranslation();
 
   return (
-    <div className="diagram-control-buttons">
+    <div className="diagram-control-buttons" data-testid="diagram-editor-controls">
       <SpiffTooltip title={t('diagram_zoom_in')} placement="bottom">
-        <IconButton aria-label={t('diagram_zoom_in')} onClick={onZoomIn}>
+        <IconButton aria-label={t('diagram_zoom_in')} onClick={onZoomIn} data-testid="diagram-zoom-in-button">
           <ZoomIn />
         </IconButton>
       </SpiffTooltip>
       <SpiffTooltip title={t('diagram_zoom_out')} placement="bottom">
-        <IconButton aria-label={t('diagram_zoom_out')} onClick={onZoomOut}>
+        <IconButton aria-label={t('diagram_zoom_out')} onClick={onZoomOut} data-testid="diagram-zoom-out-button">
           <ZoomOut />
         </IconButton>
       </SpiffTooltip>
       <SpiffTooltip title={t('diagram_zoom_fit')} placement="bottom">
-        <IconButton aria-label={t('diagram_zoom_fit')} onClick={onZoomFit}>
+        <IconButton aria-label={t('diagram_zoom_fit')} onClick={onZoomFit} data-testid="diagram-zoom-fit-button">
           <CenterFocusStrongOutlined />
         </IconButton>
       </SpiffTooltip>

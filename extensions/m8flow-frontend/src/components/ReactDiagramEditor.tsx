@@ -146,7 +146,7 @@ export default function ReactDiagramEditor(props: ReactDiagramEditorProps) {
     ) : null;
 
   return (
-    <>
+    <div data-testid="react-diagram-editor">
       <DiagramEditorToolbar
         diagramType={diagramType}
         processModelId={processModelId}
@@ -178,6 +178,6 @@ export default function ReactDiagramEditor(props: ReactDiagramEditorProps) {
         onZoomOut={() => zoom(-1)}
         onZoomFit={() => zoom(0)}
       />
-    </>
+    </div>
   );
 }

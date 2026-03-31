@@ -22,11 +22,16 @@ export default function ProcessBreadcrumb({ hotCrumbs }: OwnProps) {
           pointerEvents: 'none',
           '& a': { color: 'text.primary', textDecoration: 'none' },
         }}
+        data-testid="process-breadcrumb"
       >
         <CoreProcessBreadcrumb hotCrumbs={hotCrumbs} />
       </Box>
     );
   }
 
-  return <CoreProcessBreadcrumb hotCrumbs={hotCrumbs} />;
+  return (
+    <Box data-testid="process-breadcrumb">
+      <CoreProcessBreadcrumb hotCrumbs={hotCrumbs} />
+    </Box>
+  );
 }

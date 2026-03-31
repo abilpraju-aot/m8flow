@@ -156,7 +156,7 @@ export default function TenantPage() {
   const hasActiveFilters = searchQuery || statusFilter !== "all";
 
   return (
-    <Box sx={{ padding: 3 }}>
+    <Box sx={{ padding: 3 }} data-testid="tenant-page">
       <Stack spacing={3}>
         {/* Header */}
         <Box
@@ -206,6 +206,7 @@ export default function TenantPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 sx={{ flexGrow: 1, minWidth: 300 }}
+                data-testid="tenant-search-input"
                 InputProps={{
                   startAdornment: (
                     <InputAdornment position="start">
@@ -300,6 +301,7 @@ export default function TenantPage() {
                     key={tenant.id}
                     hover
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                    data-testid={`tenant-row-${tenant.slug}`}
                   >
                     <TableCell>
                       <Typography variant="body2" fontWeight={500}>
@@ -346,6 +348,7 @@ export default function TenantPage() {
                               color="primary"
                               onClick={() => handleEdit(tenant)}
                               disabled={tenant.status === "DELETED"}
+                              data-testid={`tenant-edit-${tenant.slug}`}
                             >
                               <EditIcon fontSize="small" />
                             </IconButton>

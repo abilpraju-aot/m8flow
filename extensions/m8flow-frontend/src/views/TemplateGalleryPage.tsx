@@ -25,6 +25,7 @@ import { TemplateFilters as TemplateFiltersType, Template } from '../types/templ
 import TemplateCard from '../components/TemplateCard';
 import TemplateFilters from '../components/TemplateFilters';
 import ImportTemplateModal from '../components/ImportTemplateModal';
+import CreateTemplateModal from '../components/CreateTemplateModal';
 import PaginationForTable from '@spiffworkflow-frontend/components/PaginationForTable';
 import { usePermissionFetcher } from "@spiffworkflow-frontend/hooks/PermissionService";
 
@@ -38,6 +39,7 @@ export default function TemplateGalleryPage() {
     latest_only: true,
   });
   const [importOpen, setImportOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
   const [viewMode, setViewMode] = useState<'card' | 'table'>('card');
   const { ability, permissionsLoaded } = usePermissionFetcher({
     "/m8flow/templates": ["POST"],
@@ -109,7 +111,7 @@ export default function TemplateGalleryPage() {
   }
 
   return (
-    <Box sx={{ p: 3 }}>
+    <Box sx={{ p: 3 }} data-testid="template-gallery-page">
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 2, mb: 3 }}>
         <Typography variant="h4" sx={{ fontWeight: 700 }}>
           Template Gallery
@@ -122,26 +124,38 @@ export default function TemplateGalleryPage() {
             size="small"
             aria-label="View mode"
           >
-            <ToggleButton value="card" aria-label="Card view">
+            <ToggleButton value="card" aria-label="Card view" data-testid="template-view-card-button">
               <ViewModule />
             </ToggleButton>
-            <ToggleButton value="table" aria-label="Table view">
+            <ToggleButton value="table" aria-label="Table view" data-testid="template-view-table-button">
               <ViewList />
             </ToggleButton>
           </ToggleButtonGroup>
           {canCreate && (
-            <Button variant="outlined" onClick={() => setImportOpen(true)}>
-              Import template (zip)
-            </Button>
+            <>
+              <Button variant="contained" onClick={() => setCreateOpen(true)} data-testid="create-template-button">
+                Create template
+              </Button>
+              <Button variant="outlined" onClick={() => setImportOpen(true)} data-testid="import-template-button">
+                Import template (zip)
+              </Button>
+            </>
           )}
         </Box>
       </Box>
       {canCreate && (
-        <ImportTemplateModal
-          open={importOpen}
-          onClose={() => setImportOpen(false)}
-          onSuccess={handleImportSuccess}
-        />
+        <>
+          <ImportTemplateModal
+            open={importOpen}
+            onClose={() => setImportOpen(false)}
+            onSuccess={handleImportSuccess}
+          />
+          <CreateTemplateModal
+            open={createOpen}
+            onClose={() => setCreateOpen(false)}
+            onSuccess={handleImportSuccess}
+          />
+        </>
       )}
 
       {error && (

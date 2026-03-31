@@ -180,7 +180,7 @@ export default function TemplateFileFormPage() {
   const editorLanguage = isJson ? "json" : isMd ? "markdown" : "plaintext";
 
   return (
-    <Box sx={{ p: 2, pl: 3, maxWidth: "100%", overflow: "hidden" }}>
+    <Box sx={{ p: 2, pl: 3, maxWidth: "100%", overflow: "hidden" }} data-testid="template-file-form-page">
       <Box sx={{ mb: 1 }}>
         <ProcessBreadcrumb hotCrumbs={hotCrumbs} />
       </Box>
@@ -193,7 +193,7 @@ export default function TemplateFileFormPage() {
         )}
       </Box>
       {template?.isPublished && (
-        <Alert severity="warning" sx={{ mb: 1 }}>
+        <Alert severity="warning" sx={{ mb: 1 }} data-testid="template-published-warning">
           This template is published. Saving changes will create a new draft
           version.
         </Alert>
@@ -208,22 +208,23 @@ export default function TemplateFileFormPage() {
           severity="success"
           sx={{ mb: 1 }}
           onClose={() => setSaveSuccess(false)}
+          data-testid="template-file-save-success-alert"
         >
           File saved successfully.
         </Alert>
       )}
       <Stack direction="row" spacing={2} sx={{ mb: 2 }}>
         {canEdit && (
-          <Button variant="contained" color="primary" onClick={handleSave}>
+          <Button variant="contained" color="primary" onClick={handleSave} data-testid="template-file-save-button">
             Save
           </Button>
         )}
         {canDelete && (
-          <Button variant="contained" color="error" onClick={handleDelete}>
+          <Button variant="contained" color="error" onClick={handleDelete} data-testid="template-file-delete-button">
             Delete
           </Button>
         )}
-        <Button variant="outlined" onClick={handleDownload}>
+        <Button variant="outlined" onClick={handleDownload} data-testid="template-file-download-button">
           Download
         </Button>
       </Stack>
@@ -232,6 +233,7 @@ export default function TemplateFileFormPage() {
         autoHideDuration={4000}
         onClose={() => setNewVersionInfo(null)}
         message={`A new draft version (${newVersionInfo?.version}) was created because the template was published. Redirecting...`}
+        data-testid="template-new-version-snackbar"
       />
       {isMd ? (
         <div data-color-mode="light">

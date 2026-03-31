@@ -105,7 +105,7 @@ export default function TenantAwareLogin() {
 
   if (checking && storedTenant?.trim()) {
     return (
-      <div style={{ padding: 24, textAlign: 'center' }}>
+      <div style={{ padding: 24, textAlign: 'center' }} data-testid="tenant-login-redirect">
         <Typography>Redirecting to login...</Typography>
       </div>
     );

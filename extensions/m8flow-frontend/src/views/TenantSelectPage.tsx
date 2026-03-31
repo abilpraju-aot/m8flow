@@ -68,7 +68,7 @@ export default function TenantSelectPage() {
   };
 
   return (
-    <Container maxWidth="sm">
+    <Container maxWidth="sm" data-testid="tenant-select-page">
       <Box sx={{ padding: 3 }}>
         <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
           Select tenant
@@ -83,12 +83,13 @@ export default function TenantSelectPage() {
             helperText={error}
             autoFocus
             sx={{ mb: 2 }}
+            data-testid="tenant-name-select-input"
           />
           <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-            <Button type="submit" variant="contained" disabled={submitting}>
+            <Button type="submit" variant="contained" disabled={submitting} data-testid="tenant-select-submit-button">
               {submitting ? 'Saving…' : 'Continue'}
             </Button>
-            <Button variant="text" onClick={handleGlobalAdminSignIn}>
+            <Button variant="text" onClick={handleGlobalAdminSignIn} data-testid="global-admin-sign-in-button">
               Global admin sign in
             </Button>
           </Box>

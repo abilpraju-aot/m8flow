@@ -113,7 +113,7 @@ export default function CreateTemplateModal({
   };
 
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth data-testid="create-template-modal">
       <DialogTitle>Create template</DialogTitle>
       <DialogContent>
         <Stack spacing={2} sx={{ pt: 1 }}>
@@ -128,6 +128,7 @@ export default function CreateTemplateModal({
             onChange={(e) => setName(e.target.value)}
             disabled={loading}
             placeholder="e.g. Approval Workflow"
+            data-testid="template-name-input"
           />
           <TextField
             label="Description"
@@ -137,6 +138,7 @@ export default function CreateTemplateModal({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             disabled={loading}
+            data-testid="template-description-input"
           />
           <TextField
             label="Category"
@@ -144,6 +146,7 @@ export default function CreateTemplateModal({
             value={category}
             onChange={(e) => setCategory(e.target.value)}
             disabled={loading}
+            data-testid="template-category-input"
           />
           <TextField
             label="Tags"
@@ -152,6 +155,7 @@ export default function CreateTemplateModal({
             value={tags}
             onChange={(e) => setTags(e.target.value)}
             disabled={loading}
+            data-testid="template-tags-input"
           />
           <FormControl fullWidth disabled={loading}>
             <InputLabel>Visibility</InputLabel>
@@ -161,6 +165,7 @@ export default function CreateTemplateModal({
               onChange={(e) =>
                 setVisibility(e.target.value as TemplateVisibility)
               }
+              data-testid="template-visibility-select"
             >
               {VISIBILITY_OPTIONS.map((opt) => (
                 <MenuItem key={opt.value} value={opt.value}>
@@ -169,7 +174,7 @@ export default function CreateTemplateModal({
               ))}
             </Select>
           </FormControl>
-          <Button variant="outlined" component="label" disabled={loading}>
+          <Button variant="outlined" component="label" disabled={loading} data-testid="template-file-upload-button">
             {files.length > 0
               ? `${files.length} file(s) selected (include .bpmn)`
               : "Choose files (BPMN required)"}
@@ -179,15 +184,16 @@ export default function CreateTemplateModal({
               multiple
               accept=".bpmn,.json,.dmn,.md"
               onChange={handleFileChange}
+              data-testid="template-file-input"
             />
           </Button>
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose} disabled={loading}>
+        <Button onClick={onClose} disabled={loading} data-testid="create-template-cancel-button">
           Cancel
         </Button>
-        <Button variant="contained" onClick={handleSubmit} disabled={loading}>
+        <Button variant="contained" onClick={handleSubmit} disabled={loading} data-testid="create-template-submit-button">
           {loading ? "Creating..." : "Create"}
         </Button>
       </DialogActions>

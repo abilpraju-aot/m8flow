@@ -166,6 +166,7 @@ export default function CreateProcessModelFromTemplateModal({
       onClose={onClose}
       maxWidth="sm"
       fullWidth
+      data-testid="create-process-model-from-template-modal"
     >
       <DialogTitle sx={{ fontSize: "1.25rem", fontWeight: 600 }}>
         Create Process Model from Template
@@ -183,6 +184,7 @@ export default function CreateProcessModelFromTemplateModal({
           
           <Box>
             <Autocomplete
+              data-testid="process-group-select"
               options={flattenedGroups}
               getOptionLabel={(option) => option.displayName}
               value={selectedGroup}
@@ -227,6 +229,7 @@ export default function CreateProcessModelFromTemplateModal({
             onChange={(e) => handleDisplayNameChange(e.target.value)}
             disabled={loading}
             helperText="Human-readable name for the process model"
+            data-testid="process-model-display-name-input"
           />
 
           <TextField
@@ -238,6 +241,7 @@ export default function CreateProcessModelFromTemplateModal({
             onChange={(e) => handleProcessModelIdChange(e.target.value)}
             disabled={loading}
             helperText="Unique identifier (lowercase letters, numbers, and hyphens only)"
+            data-testid="process-model-id-input"
           />
 
           <TextField
@@ -249,6 +253,7 @@ export default function CreateProcessModelFromTemplateModal({
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             disabled={loading}
+            data-testid="process-model-description-input"
           />
 
           {selectedGroup && processModelId && (
@@ -259,7 +264,7 @@ export default function CreateProcessModelFromTemplateModal({
         </Stack>
       </DialogContent>
       <DialogActions sx={{ px: 3, pb: 2, gap: 1 }}>
-        <Button onClick={onClose} disabled={loading} variant="outlined">
+        <Button onClick={onClose} disabled={loading} variant="outlined" data-testid="create-process-model-cancel-button">
           Cancel
         </Button>
         <Button
@@ -267,6 +272,7 @@ export default function CreateProcessModelFromTemplateModal({
           variant="contained"
           color="primary"
           disabled={loading || groupsLoading}
+          data-testid="create-process-model-submit-button"
         >
           {loading ? "Creating..." : "Create Process Model"}
         </Button>

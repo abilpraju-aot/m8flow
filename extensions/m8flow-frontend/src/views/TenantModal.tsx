@@ -99,11 +99,11 @@ export default function TenantModal({
       maxWidth="sm"
       fullWidth
       onKeyDown={(e) => {
-        // Prevent Enter from triggering delete
         if (e.key === "Enter" && isDelete) {
           e.preventDefault();
         }
       }}
+      data-testid="tenant-modal"
     >
       <DialogTitle
         sx={{
@@ -141,6 +141,7 @@ export default function TenantModal({
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
               disabled={loading}
+              data-testid="tenant-name-input"
             />
             {/* TODO: Phase 2 - Status change functionality will be implemented in Phase 2 */}
             {/* <FormControl fullWidth>
@@ -166,6 +167,7 @@ export default function TenantModal({
           disabled={loading}
           variant="outlined"
           autoFocus={isDelete}
+          data-testid="tenant-modal-cancel-button"
         >
           Cancel
         </Button>
@@ -175,6 +177,7 @@ export default function TenantModal({
           color={isDelete ? "error" : "primary"}
           autoFocus={!isDelete}
           disabled={loading}
+          data-testid="tenant-modal-submit-button"
         >
           {loading ? "Processing..." : isDelete ? "Delete" : "Save"}
         </Button>

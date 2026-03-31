@@ -41,6 +41,7 @@ export default function SpiffLogo() {
         gap: 2,
         width: '100%',
       }}
+      data-testid="m8flow-logo"
     >
       <img src={m8fLogo} alt="M8Flow Logo" style={{ height: "180px" }} />
 

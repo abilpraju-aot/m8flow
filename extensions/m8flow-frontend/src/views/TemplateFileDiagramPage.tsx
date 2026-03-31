@@ -248,12 +248,13 @@ export default function TemplateFileDiagramPage() {
         px: 2,
         pl: 3,
       }}
+      data-testid="template-file-diagram-page"
     >
       <Box sx={{ mb: 1 }}>
         <ProcessBreadcrumb hotCrumbs={hotCrumbs} />
       </Box>
       {template?.isPublished && (
-        <Alert severity="warning" sx={{ mb: 1 }}>
+        <Alert severity="warning" sx={{ mb: 1 }} data-testid="template-published-warning">
           This template is published. Saving changes will create a new draft version.
         </Alert>
       )}
@@ -263,7 +264,7 @@ export default function TemplateFileDiagramPage() {
         </Alert>
       )}
       {saveSuccess && (
-        <Alert severity="success" sx={{ mb: 1 }} onClose={() => setSaveSuccess(false)}>
+        <Alert severity="success" sx={{ mb: 1 }} onClose={() => setSaveSuccess(false)} data-testid="template-diagram-save-success-alert">
           File saved successfully.
         </Alert>
       )}
@@ -272,6 +273,7 @@ export default function TemplateFileDiagramPage() {
         autoHideDuration={5000}
         onClose={() => setNewVersionInfo(null)}
         anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        data-testid="template-new-version-snackbar"
       >
         <Alert severity="info" onClose={() => setNewVersionInfo(null)}>
           A new draft version ({newVersionInfo?.version}) was created because the template was published. Redirecting...

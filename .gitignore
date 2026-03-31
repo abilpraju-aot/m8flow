@@ -43,3 +43,6 @@ keycloak-extensions/realm-info-mapper/target/*
 email_attachments
 slack_attachments
 difflog.txt
+
+# Playwright test artifacts
+test-results/

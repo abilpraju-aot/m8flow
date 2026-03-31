@@ -105,6 +105,7 @@ export default function TemplateFilters({
         borderStyle: 'solid',
         mb: 2,
       }}
+      data-testid="template-filters"
     >
       <Box sx={{ flexGrow: 1, minWidth: 200 }}>
         <TextField
@@ -114,6 +115,7 @@ export default function TemplateFilters({
           placeholder="Search templates..."
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
+          data-testid="template-search-input"
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -130,6 +132,7 @@ export default function TemplateFilters({
           value={filters.category || ''}
           label="Category"
           onChange={(e) => handleCategoryChange(e.target.value)}
+          data-testid="template-category-filter"
         >
           <MenuItem value="">
             <em>All Categories</em>
@@ -148,6 +151,7 @@ export default function TemplateFilters({
           value={filters.visibility || ''}
           label="Visibility"
           onChange={(e) => handleVisibilityChange(e.target.value as TemplateVisibility | '')}
+          data-testid="template-visibility-filter"
         >
           <MenuItem value="">
             <em>All</em>
@@ -165,6 +169,7 @@ export default function TemplateFilters({
             value={filters.tag || ''}
             label="Tag"
             onChange={(e) => handleTagChange(e.target.value)}
+            data-testid="template-tag-filter"
           >
             <MenuItem value="">
               <em>All Tags</em>
