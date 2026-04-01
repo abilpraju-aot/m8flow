@@ -19,16 +19,15 @@ DEFAULT_PASSWORD = os.getenv("BROWSER_TEST_PASSWORD", "admin")
 DEFAULT_TENANT = os.getenv("BROWSER_TEST_TENANT", "m8flow")
 
 # ---------------------------------------------------------------------------
-# Role credentials
+# Role credentials (initial Keycloak password = username)
 # ---------------------------------------------------------------------------
-ROLE_PASSWORD = os.getenv("BROWSER_TEST_ROLE_PASSWORD", "aot123")
 SUPER_ADMIN_USERNAME = os.getenv("BROWSER_TEST_SUPER_ADMIN_USERNAME", "super-admin")
-SUPER_ADMIN_PASSWORD = os.getenv("BROWSER_TEST_SUPER_ADMIN_PASSWORD", ROLE_PASSWORD)
+SUPER_ADMIN_PASSWORD = os.getenv("BROWSER_TEST_SUPER_ADMIN_PASSWORD", "super-admin")
 
 ROLE_USERS = {
-    "editor": {"username": "editor", "password": ROLE_PASSWORD},
-    "viewer": {"username": "viewer", "password": ROLE_PASSWORD},
-    "reviewer": {"username": "reviewer", "password": ROLE_PASSWORD},
+    "editor":   {"username": "editor",   "password": os.getenv("BROWSER_TEST_EDITOR_PASSWORD",   "editor")},
+    "viewer":   {"username": "viewer",   "password": os.getenv("BROWSER_TEST_VIEWER_PASSWORD",   "viewer")},
+    "reviewer": {"username": "reviewer", "password": os.getenv("BROWSER_TEST_REVIEWER_PASSWORD", "reviewer")},
 }
 
 # ---------------------------------------------------------------------------
