@@ -46,7 +46,7 @@ import {
   PROCESS_STATUSES,
   DATE_FORMAT_CARBON,
   DATE_FORMAT_FOR_DISPLAY,
-} from '../config';
+} from '@spiffworkflow-frontend/config';
 import {
   getKeyByValue,
   getPageInfoFromSearchParams,
@@ -54,7 +54,7 @@ import {
   titleizeString,
   truncateString,
 } from '../helpers';
-import { useUriListForPermissions } from '../hooks/UriListForPermissions';
+import { useUriListForPermissions } from '@spiffworkflow-frontend/hooks/UriListForPermissions';
 
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -73,20 +73,20 @@ import {
   FilterOperatorMapping,
   FilterDisplayTypeMapping,
   SpiffTableHeader,
-} from '../interfaces';
+} from '@spiffworkflow-frontend/interfaces';
 
 // MUI
-import ProcessModelSearchCarbon from './ProcessModelSearchCarbon';
+import ProcessModelSearchCarbon from '@spiffworkflow-frontend/components/ProcessModelSearchCarbon';
 
-import ProcessInstanceReportSearch from './ProcessInstanceReportSearch';
-import ProcessInstanceListDeleteReport from './ProcessInstanceListDeleteReport';
-import ProcessInstanceListSaveAsReport from './ProcessInstanceListSaveAsReport';
-import { Notification } from './Notification';
-import useAPIError from '../hooks/UseApiError';
-import { usePermissionFetcher } from '../hooks/PermissionService';
-import { Can } from '../contexts/Can';
-import Filters from './Filters';
-import DateAndTimeService from '../services/DateAndTimeService';
+import ProcessInstanceReportSearch from '@spiffworkflow-frontend/components/ProcessInstanceReportSearch';
+import ProcessInstanceListDeleteReport from '@spiffworkflow-frontend/components/ProcessInstanceListDeleteReport';
+import ProcessInstanceListSaveAsReport from '@spiffworkflow-frontend/components/ProcessInstanceListSaveAsReport';
+import { Notification } from '@spiffworkflow-frontend/components/Notification';
+import useAPIError from '@spiffworkflow-frontend/hooks/UseApiError';
+import { usePermissionFetcher } from '@spiffworkflow-frontend/hooks/PermissionService';
+import { Can } from '@spiffworkflow-frontend/contexts/Can';
+import Filters from '@spiffworkflow-frontend/components/Filters';
+import DateAndTimeService from '@spiffworkflow-frontend/services/DateAndTimeService';
 import ProcessInstanceListTable from './ProcessInstanceListTable';
 
 type OwnProps = {

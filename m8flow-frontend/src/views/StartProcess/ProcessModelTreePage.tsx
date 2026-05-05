@@ -23,27 +23,27 @@ import { Delete, Edit, Add, Home } from '@mui/icons-material';
 import { useDebouncedCallback } from 'use-debounce';
 import { useParams, useNavigate } from 'react-router';
 import useProcessGroups from '../../hooks/useProcessGroups';
-import TreePanel, { TreeRef, SHOW_FAVORITES } from './TreePanel';
-import SearchBar from './SearchBar';
-import ProcessGroupCard from './ProcessGroupCard';
+import TreePanel, { TreeRef, SHOW_FAVORITES } from '@spiffworkflow-frontend/views/StartProcess/TreePanel';
+import SearchBar from '@spiffworkflow-frontend/views/StartProcess/SearchBar';
+import ProcessGroupCard from '@spiffworkflow-frontend/views/StartProcess/ProcessGroupCard';
 import ProcessModelCard from './ProcessModelCard';
 import {
   SPIFF_FAVORITES,
   getStorageValue,
-} from '../../services/LocalStorageService';
+} from '@spiffworkflow-frontend/services/LocalStorageService';
 import {
   PermissionsToCheck,
   ProcessGroup,
   ProcessGroupLite,
   ProcessModel,
-} from '../../interfaces';
+} from '@spiffworkflow-frontend/interfaces';
 import {
   modifyProcessIdentifierForPathParam,
   unModifyProcessIdentifierForPathParam,
 } from '../../helpers';
-import { useUriListForPermissions } from '../../hooks/UriListForPermissions';
-import { usePermissionFetcher } from '../../hooks/PermissionService';
-import ConfirmIconButton from '../../components/ConfirmIconButton';
+import { useUriListForPermissions } from '@spiffworkflow-frontend/hooks/UriListForPermissions';
+import { usePermissionFetcher } from '@spiffworkflow-frontend/hooks/PermissionService';
+import ConfirmIconButton from '@spiffworkflow-frontend/components/ConfirmIconButton';
 import HttpService from '../../services/HttpService';
 
 const SPIFF_ID = 'spifftop';

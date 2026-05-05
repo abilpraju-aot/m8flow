@@ -14,7 +14,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { ReactElement, Suspense, lazy, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ErrorBoundary } from 'react-error-boundary';
-import { ErrorBoundaryFallback } from '@spiffworkflow-frontend/ErrorBoundaryFallack';
+import { ErrorBoundaryFallback } from '@spiffworkflow-frontend/ErrorBoundaryFallback';
 import SideNav from './components/SideNav';
 
 import Extension from '@spiffworkflow-frontend/views/Extension';

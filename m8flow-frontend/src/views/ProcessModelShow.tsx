@@ -21,24 +21,24 @@ import { Can } from '@casl/react';
 // Example icon
 import ProcessBreadcrumb from '../components/ProcessBreadcrumb';
 import HttpService from '../services/HttpService';
-import useAPIError from '../hooks/UseApiError';
+import useAPIError from '@spiffworkflow-frontend/hooks/UseApiError';
 
 import {
   getGroupFromModifiedModelId,
   modifyProcessIdentifierForPathParam,
   setPageTitle,
 } from '../helpers';
-import { PermissionsToCheck, ProcessFile, ProcessModel } from '../interfaces';
-import { usePermissionFetcher } from '../hooks/PermissionService';
+import { PermissionsToCheck, ProcessFile, ProcessModel } from '@spiffworkflow-frontend/interfaces';
+import { usePermissionFetcher } from '@spiffworkflow-frontend/hooks/PermissionService';
 import { useM8flowUriListForPermissions as useUriListForPermissions } from '../hooks/M8flowUriListForPermissions';
-import ProcessInstanceRun from '../components/ProcessInstanceRun';
-import { Notification } from '../components/Notification';
-import ProcessModelTestRun from '../components/ProcessModelTestRun';
+import ProcessInstanceRun from '@spiffworkflow-frontend/components/ProcessInstanceRun';
+import { Notification } from '@spiffworkflow-frontend/components/Notification';
+import ProcessModelTestRun from '@spiffworkflow-frontend/components/ProcessModelTestRun';
 import ProcessModelTabs from '../components/ProcessModelTabs';
-import ProcessModelFileUploadModal from '../components/ProcessModelFileUploadModal';
-import ProcessModelCopyModal from '../components/ProcessModelCopyModal';
-import SpiffTooltip from '../components/SpiffTooltip';
-import { useConfirmationDialog } from '../hooks/useConfirmationDialog';
+import ProcessModelFileUploadModal from '@spiffworkflow-frontend/components/ProcessModelFileUploadModal';
+import ProcessModelCopyModal from '@spiffworkflow-frontend/components/ProcessModelCopyModal';
+import SpiffTooltip from '@spiffworkflow-frontend/components/SpiffTooltip';
+import { useConfirmationDialog } from '@spiffworkflow-frontend/hooks/useConfirmationDialog';
 
 
 export default function ProcessModelShow() {

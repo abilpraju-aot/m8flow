@@ -3,10 +3,10 @@ import { Tabs, Tab } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Can } from '@casl/react';
 import { useNavigate } from 'react-router-dom';
-import { usePermissionFetcher } from '../hooks/PermissionService';
-import { useUriListForPermissions } from '../hooks/UriListForPermissions';
-import { PermissionsToCheck } from '../interfaces';
-import SpiffTooltip from './SpiffTooltip';
+import { usePermissionFetcher } from '@spiffworkflow-frontend/hooks/PermissionService';
+import { useUriListForPermissions } from '@spiffworkflow-frontend/hooks/UriListForPermissions';
+import { PermissionsToCheck } from '@spiffworkflow-frontend/interfaces';
+import SpiffTooltip from '@spiffworkflow-frontend/components/SpiffTooltip';
 
 type OwnProps = {
   variant: string;

@@ -13,9 +13,9 @@ import { useTranslation } from 'react-i18next';
 import { Subject, Subscription } from 'rxjs';
 import { Can } from '@casl/react';
 import { modifyProcessIdentifierForPathParam } from '../../helpers';
-import { getStorageValue } from '../../services/LocalStorageService';
-import { PermissionsToCheck, ProcessModel } from '../../interfaces';
-import { usePermissionFetcher } from '../../hooks/PermissionService';
+import { getStorageValue } from '@spiffworkflow-frontend/services/LocalStorageService';
+import { PermissionsToCheck, ProcessModel } from '@spiffworkflow-frontend/interfaces';
+import { usePermissionFetcher } from '@spiffworkflow-frontend/hooks/PermissionService';
 
 const defaultStyle = {
   ':hover': {

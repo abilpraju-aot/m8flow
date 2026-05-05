@@ -16,6 +16,7 @@ import {
 } from '@mui/material';
 import type { SelectChangeEvent } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ProcessBreadcrumb from '@spiffworkflow-frontend/components/ProcessBreadcrumb';
 import DateAndTimeService from '@spiffworkflow-frontend/services/DateAndTimeService';
 import HttpService from '../services/HttpService';

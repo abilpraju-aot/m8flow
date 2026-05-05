@@ -3,16 +3,16 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Tabs, Tab } from '@mui/material';
 import { Can } from '@casl/react';
-import SecretList from './SecretList';
-import SecretNew from './SecretNew';
-import SecretShow from './SecretShow';
-import { useUriListForPermissions } from '../hooks/UriListForPermissions';
-import { PermissionsToCheck } from '../interfaces';
-import { usePermissionFetcher } from '../hooks/PermissionService';
+import SecretList from '@spiffworkflow-frontend/views/SecretList';
+import SecretNew from '@spiffworkflow-frontend/views/SecretNew';
+import SecretShow from '@spiffworkflow-frontend/views/SecretShow';
+import { useUriListForPermissions } from '@spiffworkflow-frontend/hooks/UriListForPermissions';
+import { PermissionsToCheck } from '@spiffworkflow-frontend/interfaces';
+import { usePermissionFetcher } from '@spiffworkflow-frontend/hooks/PermissionService';
 import { setPageTitle } from '../helpers';
-import { UiSchemaUxElement } from '../extension_ui_schema_interfaces';
-import ExtensionUxElementForDisplay from '../components/ExtensionUxElementForDisplay';
-import Extension from './Extension';
+import { UiSchemaUxElement } from '@spiffworkflow-frontend/extension_ui_schema_interfaces';
+import ExtensionUxElementForDisplay from '@spiffworkflow-frontend/components/ExtensionUxElementForDisplay';
+import Extension from '@spiffworkflow-frontend/views/Extension';
 
 type OwnProps = {
   extensionUxElements?: UiSchemaUxElement[] | null;

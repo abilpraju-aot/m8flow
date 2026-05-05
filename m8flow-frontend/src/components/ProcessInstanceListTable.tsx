@@ -33,17 +33,17 @@ import {
   ReportFilter,
   ReportMetadata,
   SpiffTableHeader,
-} from '../interfaces';
-import DateAndTimeService from '../services/DateAndTimeService';
+} from '@spiffworkflow-frontend/interfaces';
+import DateAndTimeService from '@spiffworkflow-frontend/services/DateAndTimeService';
 import HttpService from '../services/HttpService';
 import UserService from '../services/UserService';
-import PaginationForTable from './PaginationForTable';
-import TableCellWithTimeAgoInWords from './TableCellWithTimeAgoInWords';
+import PaginationForTable from '@spiffworkflow-frontend/components/PaginationForTable';
+import TableCellWithTimeAgoInWords from '@spiffworkflow-frontend/components/TableCellWithTimeAgoInWords';
 import {
   childrenForErrorObject,
   errorForDisplayFromString,
-} from './ErrorDisplay';
-import SpiffTooltip from './SpiffTooltip';
+} from '@spiffworkflow-frontend/components/ErrorDisplay';
+import SpiffTooltip from '@spiffworkflow-frontend/components/SpiffTooltip';
 
 type OwnProps = {
   additionalReportFilters?: ReportFilter[];

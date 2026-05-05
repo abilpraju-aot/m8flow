@@ -14,9 +14,9 @@ import { Can } from '@casl/react'; // Corrected import
 import { useNavigate } from 'react-router-dom';
 import { PureAbility } from '@casl/ability';
 import ProcessInstanceListTable from './ProcessInstanceListTable';
-import ProcessModelFileList from './ProcessModelFileList';
-import { ProcessFile } from '../interfaces';
-import ProcessModelReadmeArea from './ProcessModelReadmeArea';
+import ProcessModelFileList from '@spiffworkflow-frontend/components/ProcessModelFileList';
+import { ProcessFile } from '@spiffworkflow-frontend/interfaces';
+import ProcessModelReadmeArea from '@spiffworkflow-frontend/components/ProcessModelReadmeArea';
 
 interface ProcessModelTabsProps {
   processModel: any;
