@@ -17,7 +17,7 @@ import HttpService from '../services/HttpService';
 import { PermissionsToCheck, Secret } from '../interfaces';
 import { Notification } from '../components/Notification';
 import ConfirmButton from '../components/ConfirmButton';
-import { useUriListForPermissions } from '../hooks/UriListForPermissions';
+import { useM8flowUriListForPermissions as useUriListForPermissions } from '../hooks/M8flowUriListForPermissions';
 import { usePermissionFetcher } from '../hooks/PermissionService';
 import { Can } from '../contexts/Can';
 import ProcessBreadcrumb from '../components/ProcessBreadcrumb';
@@ -47,10 +47,12 @@ export default function SecretShow() {
   const { targetUris } = useUriListForPermissions();
   const permissionRequestData: PermissionsToCheck = {
     [targetUris.secretShowPath]: ['PUT', 'DELETE', 'GET'],
+    [targetUris.m8flowTenantListPath]: ['GET'],
   };
   const { ability, permissionsLoaded } = usePermissionFetcher(
     permissionRequestData,
   );
+  const isSuperAdmin = ability.can('GET', targetUris.m8flowTenantListPath);
 
   useEffect(() => {
     HttpService.makeCallToBackend({
@@ -118,13 +120,15 @@ export default function SecretShow() {
           {t('secret_key')}: {secret.key}
         </h1>
         <Stack direction="row" spacing={3}>
-          <Can I="DELETE" a={targetUris.secretShowPath} ability={ability}>
-            <ConfirmButton
-              description={t('delete_secret_confirmation')}
-              onConfirmation={deleteSecret}
-              buttonLabel={t('delete')}
-            />
-          </Can>
+          {!isSuperAdmin && (
+            <Can I="DELETE" a={targetUris.secretShowPath} ability={ability}>
+              <ConfirmButton
+                description={t('delete_secret_confirmation')}
+                onConfirmation={deleteSecret}
+                buttonLabel={t('delete')}
+              />
+            </Can>
+          )}
           <Can I="PUT" a={targetUris.secretShowPath} ability={ability}>
             <Button
               disabled={displaySecretValue}
