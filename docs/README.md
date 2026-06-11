@@ -393,13 +393,33 @@ The master realm has no `m8flow-backend` client because the `keycloak-master-adm
 docker compose --profile init -f docker/m8flow-docker-compose.yml up -d keycloak-master-admin-init
 ```
 
-It exits when done (`restart: "no"`). Verify it succeeded:
+It exits when done (`restart: on-failure`, so a rare transient failure is retried automatically). Verify it succeeded:
 
 ```bash
 docker compose -f docker/m8flow-docker-compose.yml logs keycloak-master-admin-init
 ```
 
 Then retry "Global admin sign in" in a **fresh private window** (your previous tab is holding a stale auth code from the failed attempt).
+
+### Backend exits at startup with `OpenIdConnectionError: OpenID discovery returned 502 ...keycloak-proxy:6842...`
+
+The backend could not reach Keycloak through the `keycloak-proxy` (nginx) container. The
+compose stack is designed to prevent this: `keycloak` only reports **healthy** after it has
+finished provisioning its realms (the entrypoint writes `/tmp/keycloak-ready`), and the
+backend, `keycloak-proxy`, and `keycloak-master-admin-init` all wait for that. If you still
+see a 502, it almost always means **another Keycloak container is already running on the host**
+and is bound to port `6842` (or `6849`) — m8flow's Keycloak then fails to start and the proxy
+has nothing to forward to. Stop the other Keycloak (or any conflicting stack) and re-run, or
+override `KEYCLOAK_PROXY_PORT` / `KEYCLOAK_MGMT_PORT` in `.env`:
+
+```bash
+docker ps --filter "publish=6842"          # find what's holding the port
+docker compose -f docker/m8flow-docker-compose.yml up -d   # re-run after freeing it
+```
+
+The nginx proxy re-resolves the `keycloak` hostname on a short TTL, so once Keycloak is up the
+backend reconnects without a manual restart (and the backend has `restart: on-failure` as a
+safety net).
 
 ### Backend logs `WinError 10061` / `Connection refused` to `localhost:6844`
 

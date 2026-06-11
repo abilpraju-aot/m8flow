@@ -936,6 +936,13 @@ fi
 
 prepare_m8flow_realm_import
 
+# Readiness sentinel: the compose healthcheck requires this file to exist, so the
+# container only reports healthy AFTER post-start realm/org provisioning completes
+# (below). Remove any stale copy first so a restarted container can't report healthy
+# on half-configured state before this run finishes re-provisioning.
+KC_READY_SENTINEL="/tmp/keycloak-ready"
+rm -f "${KC_READY_SENTINEL}"
+
 # Start Keycloak in background so we can run kcadm to set sslRequired=NONE after it is ready
 echo "[keycloak-entrypoint] Starting Keycloak in background..."
 /opt/keycloak/bin/kc.sh "$@" &
@@ -1027,6 +1034,10 @@ else
     fi
   done
   echo "[keycloak-entrypoint] Realm configuration complete."
+  # Signal readiness only on the success path. If provisioning timed out above
+  # (ELAPSED >= TIMEOUT), the sentinel is intentionally left absent so the container
+  # is reported unhealthy instead of half-configured.
+  touch "${KC_READY_SENTINEL}"
 fi
 
 wait $KC_PID

@@ -34,6 +34,41 @@ done
 
 echo ":: Connected to Keycloak admin API."
 
+# Retry a kcadm command a few times before giving up. Concurrent writes from the
+# keycloak container's own post-start configuration (or momentary load) can make a
+# single call fail transiently; under `set -eu` that would abort the whole script.
+retry_kcadm() {
+  attempts="${RETRY_KCADM_ATTEMPTS:-5}"
+  delay="${RETRY_KCADM_DELAY:-3}"
+  i=0
+  while :; do
+    if "$@"; then
+      return 0
+    fi
+    i=$((i + 1))
+    if [ "$i" -ge "$attempts" ]; then
+      return 1
+    fi
+    sleep "$delay"
+  done
+}
+
+# Wait for a realm to exist before reconciling resources inside it, so we never race
+# a half-imported realm (the shared/m8flow realm is imported by the keycloak entrypoint).
+wait_for_realm() {
+  realm_name="$1"
+  timeout_attempts="${WAIT_FOR_REALM_ATTEMPTS:-30}"
+  i=0
+  until /opt/keycloak/bin/kcadm.sh get "realms/${realm_name}" >/dev/null 2>&1; do
+    i=$((i + 1))
+    if [ "$i" -ge "$timeout_attempts" ]; then
+      return 1
+    fi
+    sleep 2
+  done
+  return 0
+}
+
 /opt/keycloak/bin/kcadm.sh update realms/master -s sslRequired=NONE >/dev/null 2>&1 || true
 
 ensure_admin_realm_exists() {
@@ -256,22 +291,32 @@ client_id=$(
 )
 
 if [ -z "${client_id}" ]; then
-  /opt/keycloak/bin/kcadm.sh create clients -r "${keycloak_master_realm_name}" \
-    -s clientId="${keycloak_client_id}" \
-    -s enabled=true \
-    -s publicClient=false \
-    -s secret="${keycloak_client_secret}" \
-    -s standardFlowEnabled=true \
-    -s directAccessGrantsEnabled=true \
-    -s serviceAccountsEnabled=true \
-    -s fullScopeAllowed=true \
-    -s bearerOnly=false \
-    -s 'defaultClientScopes=["web-origins","acr","profile","roles","email"]' \
-    -s 'optionalClientScopes=["address","phone","offline_access","microprofile-jwt"]' \
-    -s "redirectUris=[\"${backend_redirect_uri}\"]" \
-    -s "webOrigins=[\"${frontend_public_url%/}\"]" \
-    -s "attributes.\"post.logout.redirect.uris\"=${frontend_logout_redirect_uri}" \
-    >/dev/null
+  # Tolerate a concurrent create by the keycloak container's own post-start config:
+  # if the create races and loses ("exists"), treat it as success and re-resolve below.
+  if ! create_output="$(
+    /opt/keycloak/bin/kcadm.sh create clients -r "${keycloak_master_realm_name}" \
+      -s clientId="${keycloak_client_id}" \
+      -s enabled=true \
+      -s publicClient=false \
+      -s secret="${keycloak_client_secret}" \
+      -s standardFlowEnabled=true \
+      -s directAccessGrantsEnabled=true \
+      -s serviceAccountsEnabled=true \
+      -s fullScopeAllowed=true \
+      -s bearerOnly=false \
+      -s 'defaultClientScopes=["web-origins","acr","profile","roles","email"]' \
+      -s 'optionalClientScopes=["address","phone","offline_access","microprofile-jwt"]' \
+      -s "redirectUris=[\"${backend_redirect_uri}\"]" \
+      -s "webOrigins=[\"${frontend_public_url%/}\"]" \
+      -s "attributes.\"post.logout.redirect.uris\"=${frontend_logout_redirect_uri}" 2>&1
+  )"; then
+    if printf '%s' "${create_output}" | grep -qi 'exists'; then
+      echo ":: Admin realm ${keycloak_master_realm_name}: client ${keycloak_client_id} already exists; reusing."
+    else
+      echo >&2 "ERROR: Failed to create admin realm ${keycloak_master_realm_name} client ${keycloak_client_id}: ${create_output}"
+      exit 1
+    fi
+  fi
 
   client_id=$(
     /opt/keycloak/bin/kcadm.sh get clients -r "${keycloak_master_realm_name}" -q clientId="${keycloak_client_id}" --fields id,clientId \
@@ -285,7 +330,7 @@ if [ -z "${client_id}" ]; then
   exit 1
 fi
 
-/opt/keycloak/bin/kcadm.sh update "clients/${client_id}" -r "${keycloak_master_realm_name}" \
+retry_kcadm /opt/keycloak/bin/kcadm.sh update "clients/${client_id}" -r "${keycloak_master_realm_name}" \
   -s secret="${keycloak_client_secret}" \
   -s standardFlowEnabled=true \
   -s directAccessGrantsEnabled=true \
@@ -315,6 +360,13 @@ remove_legacy_root_group_mappers "${keycloak_master_realm_name}" "${client_id}"
   --uusername "${keycloak_super_admin_user}" \
   --rolename super-admin >/dev/null 2>&1 || true
 
-ensure_spoke_client_in_realm "${m8flow_realm_name}"
+# Wait for the shared realm to finish importing before reconciling its spoke client,
+# so we never operate on a half-imported realm. Non-fatal if it never appears
+# (ensure_spoke_client_in_realm already no-ops on a missing realm).
+if wait_for_realm "${m8flow_realm_name}"; then
+  ensure_spoke_client_in_realm "${m8flow_realm_name}"
+else
+  echo ":: Shared realm ${m8flow_realm_name} not present yet; skipping spoke client reconciliation."
+fi
 
 echo ":: Admin realm ${keycloak_master_realm_name} client, role, and super-admin ensured."
