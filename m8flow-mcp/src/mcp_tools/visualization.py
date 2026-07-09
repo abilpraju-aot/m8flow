@@ -40,8 +40,9 @@ async def view_workflow(process_model_id: str) -> str:
     # Get process model to find BPMN file
     model = await client.get(f"/v1.0/process-models/{modified_id}", token)
 
-    # Get first .bpmn file (usually matches model ID)
-    bpmn_filename = f"{model['id']}.bpmn"
+    # Use the backend-provided primary file name. model["id"] is the full
+    # "group/model" id, so building the filename from it produces a bad path.
+    bpmn_filename = model.get("primary_file_name") or f"{process_model_id.split('/')[-1]}.bpmn"
 
     # Get BPMN file content
     file_response = await client.get(
@@ -138,7 +139,7 @@ async def view_process_instance(process_model_id: str, process_instance_id: int)
     if not bpmn_xml or not bpmn_xml.strip():
         # Fallback to model BPMN
         model = await client.get(f"/v1.0/process-models/{modified_id}", token)
-        bpmn_filename = f"{model['id']}.bpmn"
+        bpmn_filename = model.get("primary_file_name") or f"{process_model_id.split('/')[-1]}.bpmn"
         file_response = await client.get(
             f"/v1.0/process-models/{modified_id}/files/{quote_path_segment(bpmn_filename)}", token
         )

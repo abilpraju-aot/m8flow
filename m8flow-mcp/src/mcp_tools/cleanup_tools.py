@@ -13,11 +13,100 @@ from typing import Any
 from fastmcp import FastMCP
 
 from src.api_client import M8flowAPIClient
-from src.errors import NotFoundError
+from src.errors import M8flowAPIError, NotFoundError
 from src.utils.context import get_auth_token
 from src.utils.url import quote_path_segment
 
 logger = logging.getLogger(__name__)
+
+# A process instance can only be deleted once it reaches a terminal status.
+_TERMINAL_STATUSES = {"complete", "error", "terminated"}
+
+
+async def _list_model_instances(client: M8flowAPIClient, token: str, model_id: str) -> list[dict[str, Any]]:
+    """List process instances for a model via the /for-me report endpoint.
+
+    (There is no plain ``GET /v1.0/process-instances`` route, so the previous
+    GET-based checks silently returned nothing.)
+    """
+    body = {
+        "report_metadata": {
+            "columns": [],
+            "filter_by": [{"field_name": "process_model_identifier", "field_value": model_id}],
+            "order_by": [],
+        }
+    }
+    result = await client.post(
+        "/v1.0/process-instances/for-me", token, data=body, params={"page": 1, "per_page": 1000}
+    )
+    return result.get("results", []) if isinstance(result, dict) else []
+
+
+async def _force_delete_model_instances(client: M8flowAPIClient, token: str, workflow_id: str) -> None:
+    """Terminate (if needed) and delete every instance of a model.
+
+    The backend refuses to delete a process model while ANY instance row
+    exists, and an instance can only be deleted once it has a terminal status.
+    So for a true force-delete we terminate non-terminal instances, then delete
+    each instance row.
+    """
+    group, model = workflow_id.split("/", 1)
+    modified_id = f"{quote_path_segment(group, safe=':')}:{quote_path_segment(model)}"
+
+    for instance in await _list_model_instances(client, token, workflow_id):
+        instance_id = instance.get("id")
+        if instance_id is None:
+            continue
+        status = (instance.get("status") or "").lower()
+        if status not in _TERMINAL_STATUSES:
+            try:
+                await client.post(f"/v1.0/process-instance-terminate/{modified_id}/{instance_id}", token)
+            except Exception as e:
+                logger.warning(f"Could not terminate instance {instance_id} of {workflow_id}: {e}")
+        try:
+            await client.delete(f"/v1.0/process-instances/{modified_id}/{instance_id}", token)
+        except Exception as e:
+            logger.warning(f"Could not delete instance {instance_id} of {workflow_id}: {e}")
+
+
+def _group_missing(exc: Exception) -> bool:
+    """Whether ``exc`` means the process group does not exist.
+
+    The backend returns HTTP 400 (``M8flowAPIError``) with a
+    "cannot be found" message for a missing process group, not 404, so a plain
+    ``except NotFoundError`` never fires. Treat both as "missing".
+    """
+    if isinstance(exc, NotFoundError):
+        return True
+    return isinstance(exc, M8flowAPIError) and exc.status_code == 400 and "cannot be found" in (exc.message or "").lower()
+
+
+async def _ensure_process_group_exists(
+    client: M8flowAPIClient, token: str, group_id: str, display_name: str, description: str
+) -> None:
+    """Idempotently ensure a process group exists (create it if missing).
+
+    Mirrors the create-or-update pattern used for models, but accounts for the
+    backend returning a 400 (not 404) when the group is absent.
+    """
+    try:
+        await client.get(f"/v1.0/process-groups/{quote_path_segment(group_id, safe=':')}", token)
+        return
+    except Exception as e:
+        if not _group_missing(e):
+            raise
+
+    try:
+        await client.post(
+            "/v1.0/process-groups",
+            token,
+            data={"id": group_id, "display_name": display_name, "description": description},
+        )
+    except Exception as e:
+        # A concurrent create (already-exists) or transient error should not
+        # abort the caller; the subsequent model create will surface any real
+        # problem.
+        logger.warning(f"Could not create process group '{group_id}': {e}")
 
 
 def register_cleanup_tools(mcp: FastMCP) -> None:
@@ -165,7 +254,7 @@ def register_cleanup_tools(mcp: FastMCP) -> None:
 
         # List all models
         try:
-            response = await client.get("/v1.0/process-models", token, params={"per_page": 1000})
+            response = await client.get("/v1.0/process-models", token, params={"per_page": 1000, "recursive": True})
             models = response.get("results", [])
         except Exception as e:
             return f"❌ Error listing models: {e}"
@@ -204,7 +293,9 @@ def register_cleanup_tools(mcp: FastMCP) -> None:
 
             # Safe to delete
             try:
-                group, model_name = model_id.split("/")
+                # split("/", 1) keeps nested-group ids (a/b/model) intact so the
+                # summary and delete target the model's own real group/model pair.
+                group, model_name = model_id.split("/", 1)
                 await client.delete(
                     f"/v1.0/process-models/{quote_path_segment(group, safe=':')}:{quote_path_segment(model_name)}",
                     token,
@@ -244,7 +335,7 @@ def register_cleanup_tools(mcp: FastMCP) -> None:
         client = M8flowAPIClient()
 
         try:
-            response = await client.get("/v1.0/process-models", token, params={"per_page": 1000})
+            response = await client.get("/v1.0/process-models", token, params={"per_page": 1000, "recursive": True})
             models = response.get("results", [])
         except Exception as e:
             return f"❌ Error listing models: {e}"
@@ -312,20 +403,23 @@ def register_cleanup_tools(mcp: FastMCP) -> None:
 
                 group, model = workflow_id.split("/", 1)
 
-                # Check instances unless force
-                if not force:
-                    try:
-                        instances = await client.get(
-                            "/v1.0/process-instances",
-                            token,
-                            params={"process_model_identifier": workflow_id, "per_page": 1},
-                        )
-
-                        if instances.get("results"):
-                            failed.append(f"{workflow_id} - has running instances (use force=True to delete anyway)")
-                            continue
-                    except Exception:
-                        pass
+                if force:
+                    # Cascade: terminate + delete all instances so the model
+                    # delete below is not blocked by existing instance rows.
+                    await _force_delete_model_instances(client, token, workflow_id)
+                else:
+                    # Only genuinely active (non-terminal) instances should block
+                    # a normal delete. Instances in a terminal state (complete /
+                    # error / terminated) do not count as "running".
+                    instances = await _list_model_instances(client, token, workflow_id)
+                    active = [i for i in instances if (i.get("status") or "").lower() not in _TERMINAL_STATUSES]
+                    if active:
+                        failed.append(f"{workflow_id} - has running instances (use force=True to delete anyway)")
+                        continue
+                    # The backend refuses to delete a model while ANY instance row
+                    # exists, so clear out the leftover terminal rows first.
+                    if instances:
+                        await _force_delete_model_instances(client, token, workflow_id)
 
                 # Delete
                 await client.delete(
@@ -372,61 +466,60 @@ def register_cleanup_tools(mcp: FastMCP) -> None:
             Success message with sandbox info
         """
         token = get_auth_token()
+        if not token:
+            return "❌ No authentication token available"
+
         client = M8flowAPIClient()
 
         # Always use 'sandbox' group
         process_group_id = "sandbox"
 
-        # Ensure sandbox group exists
         try:
-            await client.get(f"/v1.0/process-groups/{quote_path_segment(process_group_id, safe=':')}", token)
-        except NotFoundError:
-            try:
-                await client.post(
-                    "/v1.0/process-groups",
-                    token,
-                    data={
-                        "id": process_group_id,
-                        "display_name": "🧪 Sandbox (Auto-cleanup)",
-                        "description": "Temporary workflows - auto-deleted after 24h",
-                    },
-                )
-            except Exception as e:
-                logger.warning(f"Could not create sandbox group: {e}")
+            # Ensure sandbox group exists (auto-create if missing; idempotent).
+            await _ensure_process_group_exists(
+                client,
+                token,
+                process_group_id,
+                "🧪 Sandbox (Auto-cleanup)",
+                "Temporary workflows - auto-deleted after 24h",
+            )
 
-        # Add timestamp to make unique
-        timestamp = int(time.time())
-        unique_id = f"{process_model_id}-{timestamp}"
+            # Add timestamp to make unique
+            timestamp = int(time.time())
+            unique_id = f"{process_model_id}-{timestamp}"
 
-        # Create model
-        model_data = {
-            "id": f"{process_group_id}/{unique_id}",
-            "display_name": f"🧪 {display_name}",
-            "description": description or "Sandbox workflow - will be auto-deleted after 24h",
-        }
+            # Create model
+            model_data = {
+                "id": f"{process_group_id}/{unique_id}",
+                "display_name": f"🧪 {display_name}",
+                "description": description or "Sandbox workflow - will be auto-deleted after 24h",
+            }
 
-        create_result = await client.post(
-            f"/v1.0/process-models/{quote_path_segment(process_group_id, safe=':')}", token, data=model_data
-        )
+            create_result = await client.post(
+                f"/v1.0/process-models/{quote_path_segment(process_group_id, safe=':')}", token, data=model_data
+            )
 
-        primary_file = create_result.get("primary_file_name", f"{unique_id}.bpmn")
+            primary_file = create_result.get("primary_file_name", f"{unique_id}.bpmn")
 
-        # Get file hash
-        file_info = await client.get(
-            f"/v1.0/process-models/{quote_path_segment(process_group_id, safe=':')}:{quote_path_segment(unique_id)}"
-            f"/files/{quote_path_segment(primary_file)}",
-            token,
-        )
-        current_hash = file_info.get("file_contents_hash", "")
+            # Get file hash
+            file_info = await client.get(
+                f"/v1.0/process-models/{quote_path_segment(process_group_id, safe=':')}:{quote_path_segment(unique_id)}"
+                f"/files/{quote_path_segment(primary_file)}",
+                token,
+            )
+            current_hash = file_info.get("file_contents_hash", "")
 
-        # Update BPMN
-        await client.put(
-            f"/v1.0/process-models/{quote_path_segment(process_group_id, safe=':')}:{quote_path_segment(unique_id)}"
-            f"/files/{quote_path_segment(primary_file)}",
-            token,
-            data=bpmn_content,
-            params={"file_contents_hash": current_hash},
-        )
+            # Update BPMN
+            await client.put(
+                f"/v1.0/process-models/{quote_path_segment(process_group_id, safe=':')}:{quote_path_segment(unique_id)}"
+                f"/files/{quote_path_segment(primary_file)}",
+                token,
+                data=bpmn_content,
+                params={"file_contents_hash": current_hash},
+            )
+        except Exception as e:
+            logger.error(f"Failed to create sandbox workflow '{process_model_id}': {e}", exc_info=True)
+            return f"❌ Error creating sandbox workflow '{process_model_id}': {type(e).__name__}: {e}"
 
         return f"""# ✓ Sandbox Workflow Created
 
@@ -465,7 +558,7 @@ def register_cleanup_tools(mcp: FastMCP) -> None:
 
         try:
             # Get all models in sandbox group
-            response = await client.get("/v1.0/process-models", token, params={"per_page": 1000})
+            response = await client.get("/v1.0/process-models", token, params={"per_page": 1000, "recursive": True})
             models = response.get("results", [])
 
             # Filter sandbox models

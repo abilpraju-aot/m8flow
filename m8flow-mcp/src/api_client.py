@@ -318,7 +318,8 @@ class M8flowAPIClient:
         except (AuthenticationError, AuthorizationError, NotFoundError, TenantError, ServerError, M8flowAPIError):
             raise  # Re-raise our custom errors
         except Exception as e:
-            raise M8flowAPIError(0, f"Unexpected error: {e}", {}) from e
+            logger.exception("Unexpected error during GET %s", path)
+            raise M8flowAPIError(0, f"Unexpected error: {type(e).__name__}: {e!r}", {}) from e
 
     async def get(
         self,
@@ -367,7 +368,8 @@ class M8flowAPIClient:
         except (AuthenticationError, AuthorizationError, NotFoundError, TenantError, ServerError, M8flowAPIError):
             raise  # Re-raise our custom errors
         except Exception as e:
-            raise M8flowAPIError(0, f"Unexpected error: {e}", {}) from e
+            logger.exception("Unexpected error during POST %s", path)
+            raise M8flowAPIError(0, f"Unexpected error: {type(e).__name__}: {e!r}", {}) from e
 
     async def post(
         self,
@@ -395,6 +397,63 @@ class M8flowAPIClient:
         else:
             # Direct call (existing behavior, fully backward compatible)
             return await self._post_impl(path, token, data, params, headers)
+
+    async def post_raw(
+        self,
+        path: str,
+        token: str,
+        content: str,
+        content_type: str,
+        params: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+    ) -> dict[str, Any]:
+        """POST a raw (non-JSON) request body with an explicit Content-Type.
+
+        Used for endpoints that expect a raw body rather than JSON, e.g. the
+        m8flow template-create endpoint which takes ``application/xml`` BPMN
+        content plus ``X-Template-*`` headers.
+
+        Args:
+            path: API endpoint path
+            token: Authentication token
+            content: Raw request body (e.g. BPMN XML)
+            content_type: Value for the Content-Type header (e.g. "application/xml")
+            params: Query parameters
+            headers: Additional headers (e.g. X-Template-Key)
+
+        Returns:
+            Response data as dict
+        """
+        url = f"{self.base_url}{path}"
+
+        # Build headers manually so Content-Type is not forced to application/json.
+        request_headers: dict[str, str] = {
+            "Accept": "application/json",
+            "Content-Type": content_type,
+            "Authorization": token if token.startswith("Bearer ") else f"Bearer {token}",
+        }
+        tenant_id = get_tenant_id()
+        if tenant_id:
+            request_headers["x-m8flow-tenant-id"] = tenant_id
+        if headers:
+            request_headers.update(headers)
+
+        client = get_http_client()
+
+        try:
+            response = await client.post(
+                url, headers=request_headers, content=content, params=params, timeout=self.timeout
+            )
+            return await self._handle_response(response)
+        except httpx.ConnectError as e:
+            raise NetworkError(f"Cannot connect to m8flow at {self.base_url}: {e}") from e
+        except httpx.TimeoutException as e:
+            raise TimeoutError(f"Request to {path} timed out after {self.timeout}s") from e
+        except (AuthenticationError, AuthorizationError, NotFoundError, TenantError, ServerError, M8flowAPIError):
+            raise
+        except Exception as e:
+            logger.exception("Unexpected error during raw POST %s", path)
+            raise M8flowAPIError(0, f"Unexpected error: {type(e).__name__}: {e!r}", {}) from e
 
     async def _put_impl(
         self,
@@ -439,7 +498,8 @@ class M8flowAPIClient:
         except (AuthenticationError, AuthorizationError, NotFoundError, TenantError, ServerError, M8flowAPIError):
             raise  # Re-raise our custom errors
         except Exception as e:
-            raise M8flowAPIError(0, f"Unexpected error: {e}", {}) from e
+            logger.exception("Unexpected error during PUT %s", path)
+            raise M8flowAPIError(0, f"Unexpected error: {type(e).__name__}: {e!r}", {}) from e
 
     async def put(
         self,

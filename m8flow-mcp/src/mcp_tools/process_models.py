@@ -131,12 +131,16 @@ def register_process_model_tools(mcp: FastMCP) -> None:
         # Convert slashes to colons (e.g., "finance/sub" -> "finance:sub")
         modified_group_id = quote_path_segment(process_group_id.replace("/", ":"), safe=":")
 
+        # The backend uses the body "id" verbatim as the canonical model
+        # identifier, so it must be nested under the group ("group/model"),
+        # matching create_process_model_with_bpmn / _from_template. And
+        # ProcessModelInfo.description is a required positional, so always send
+        # it (default "") to avoid a backend TypeError when omitted.
         data: dict[str, Any] = {
-            "id": identifier,
+            "id": f"{process_group_id}/{identifier}",
             "display_name": display_name,
+            "description": description or "",
         }
-        if description:
-            data["description"] = description
 
         try:
             # Correct endpoint: POST /v1.0/process-models/{modified_process_group_id}

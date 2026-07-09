@@ -10,6 +10,7 @@ from typing import TYPE_CHECKING, Any
 
 from src.api_client import M8flowAPIClient
 from src.utils.context import get_auth_token
+from src.utils.instances import resolve_instance
 from src.utils.logging import get_logger
 
 if TYPE_CHECKING:
@@ -17,6 +18,12 @@ if TYPE_CHECKING:
 
 logger = get_logger(__name__)
 client = M8flowAPIClient()
+
+
+async def _fetch_instance(process_instance_id: int, token: str) -> dict[str, Any]:
+    """Fetch a process instance by bare id via the model-qualified show route."""
+    _, modified_id = await resolve_instance(client, process_instance_id, token)
+    return await client.get(f"/v1.0/process-instances/{modified_id}/{process_instance_id}", token)
 
 
 def _extract_errors_from_instance(instance: dict[str, Any]) -> list[dict[str, Any]]:
@@ -112,7 +119,7 @@ def register_error_tools(mcp: FastMCP) -> None:
         try:
             if process_instance_id:
                 # Get instance and extract errors
-                instance = await client.get(f"/v1.0/process-instances/{process_instance_id}", token)
+                instance = await _fetch_instance(process_instance_id, token)
                 errors = _extract_errors_from_instance(instance)
 
                 # Filter by severity if requested
@@ -164,7 +171,7 @@ def register_error_tools(mcp: FastMCP) -> None:
 
         try:
             # Get full instance details
-            instance = await client.get(f"/v1.0/process-instances/{process_instance_id}", token)
+            instance = await _fetch_instance(process_instance_id, token)
 
             # Extract errors
             errors = _extract_errors_from_instance(instance)
@@ -224,7 +231,7 @@ def register_error_tools(mcp: FastMCP) -> None:
             return "**Error:** No authentication token available"
 
         try:
-            instance = await client.get(f"/v1.0/process-instances/{process_instance_id}", token)
+            instance = await _fetch_instance(process_instance_id, token)
 
             status = instance.get("status", "unknown")
             model = instance.get("process_model_identifier", "unknown")

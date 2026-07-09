@@ -166,3 +166,38 @@ async def test_get_bpmn_file_uses_modified_id_route():
         assert result == "<bpmn:definitions/>"
         file_call_path = mock_get.await_args_list[-1].args[0]
         assert file_call_path == "/v1.0/process-models/my-group:my-model/files/my-model.bpmn"
+
+
+@pytest.mark.asyncio
+async def test_create_template_posts_xml_with_template_headers():
+    """create_template must send the source BPMN as application/xml with X-Template-* headers (bug #2)."""
+    with (
+        patch("src.mcp_tools.bpmn_tools.get_auth_token", return_value="Bearer test-token"),
+        patch("src.mcp_tools.bpmn_tools.client.get", new_callable=AsyncMock) as mock_get,
+        patch("src.mcp_tools.bpmn_tools.client.post_raw", new_callable=AsyncMock) as mock_post_raw,
+    ):
+
+        def get_side_effect(path, token, *args, **kwargs):
+            if "/files/" in path:
+                return {"file_contents": "<bpmn:definitions/>"}
+            return {"id": "my-group/my-model", "primary_file_name": "my-model.bpmn"}
+
+        mock_get.side_effect = get_side_effect
+        mock_post_raw.return_value = {"id": 5}
+
+        mcp = _register_tools()
+        result = await mcp.tools["create_template"](
+            process_group_id="my-group",
+            process_model_id="my-model",
+            template_id="my-template",
+            template_name="My Template",
+        )
+
+        assert "Template Created" in result
+        mock_post_raw.assert_awaited_once()
+        args, kwargs = mock_post_raw.await_args
+        assert args[0] == "/v1.0/m8flow/templates"
+        assert kwargs["content_type"] == "application/xml"
+        assert kwargs["content"] == "<bpmn:definitions/>"
+        assert kwargs["headers"]["X-Template-Key"] == "my-template"
+        assert kwargs["headers"]["X-Template-Name"] == "My Template"

@@ -60,19 +60,38 @@ def register_bpmn_tools(mcp: FastMCP) -> None:
             Success message with template details
         """
         token = get_auth_token()
+        if not token:
+            return "❌ No authentication token available"
+
+        modified_id = _modified_model_id(process_group_id, process_model_id)
 
         try:
-            # Prepare template data
-            template_data = {
-                "id": template_id,
-                "name": template_name,
-                "description": description,
-                "source_process_group_id": process_group_id,
-                "source_process_model_id": process_model_id,
-            }
+            # The template-create endpoint takes the BPMN as an application/xml
+            # body plus X-Template-* headers (NOT a JSON body). Fetch the source
+            # model's primary BPMN first.
+            model_info = await client.get(f"/v1.0/process-models/{modified_id}", token)
+            bpmn_file_name = model_info.get("primary_file_name") or f"{process_model_id}.bpmn"
+            file_data = await client.get(
+                f"/v1.0/process-models/{modified_id}/files/{quote_path_segment(bpmn_file_name)}",
+                token,
+            )
+            bpmn_xml = file_data.get("file_contents", "")
+            if not bpmn_xml or not bpmn_xml.strip():
+                return f"❌ Source model {process_group_id}/{process_model_id} has no BPMN content to templatize"
 
-            # Create template
-            await client.post("/v1.0/m8flow/templates", token, template_data)
+            # Create template: raw XML body + required X-Template-* headers.
+            await client.post_raw(
+                "/v1.0/m8flow/templates",
+                token,
+                content=bpmn_xml,
+                content_type="application/xml",
+                headers={
+                    "X-Template-Key": template_id,
+                    "X-Template-Name": template_name,
+                    "X-Template-Description": description or "",
+                    "X-Template-Visibility": "PRIVATE",
+                },
+            )
 
             output = ["# ✓ Template Created Successfully\n\n"]
             output.append(f"**Template ID:** `{template_id}`\n")
