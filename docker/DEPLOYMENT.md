@@ -1,6 +1,12 @@
 # Deploying M8Flow images to Docker Hub
 
-This document describes how to build and push the **backend**, **frontend**, and **Keycloak** images to Docker Hub for use by ECS or other deployments (e.g. `m8flow-deployment` with `use_docker_hub = true`).
+This document describes how to build and push the **backend**, **frontend**, **Keycloak**, **connector-proxy**, and **MCP server** images to Docker Hub for use by ECS or other deployments (e.g. `m8flow-deployment` with `use_docker_hub = true`).
+
+> **Note:** In CI these images are built and pushed automatically by
+> [.github/workflows/deploy-docker.yml](../.github/workflows/deploy-docker.yml) on an `X.Y.Z-rc`
+> release tag, then rolled out to ECS by
+> [.github/workflows/deploy-aws.yml](../.github/workflows/deploy-aws.yml). The manual commands
+> below are the equivalent for local/one-off builds.
 
 ---
 
@@ -100,7 +106,20 @@ docker push "${DOCKER_NAMESPACE}/m8flow-keycloak:${TAG}"
 
 ---
 
-## 4. MinIO
+## 4. MCP Server
+
+The MCP server has its own multi-stage Dockerfile at [m8flow-mcp/Dockerfile](../m8flow-mcp/Dockerfile) (build context `m8flow-mcp/`, same special-case as connector-proxy). It runs in `remote` (HTTP) mode in production, listens on container port `8000`, and exposes `GET /health`.
+
+```bash
+docker build --platform linux/amd64 -f m8flow-mcp/Dockerfile -t "${DOCKER_NAMESPACE}/m8flow-mcp:${TAG}" m8flow-mcp
+docker push "${DOCKER_NAMESPACE}/m8flow-mcp:${TAG}"
+```
+
+Runtime config is supplied by the ECS task definition (non-secret: `SERVER_TYPE=remote`, `HOST`, `PORT`, `LOG_LEVEL`, `MCP_OIDC_*`; secrets via task-def secrets: Keycloak client secret, `M8FLOW_BEARER_TOKEN`, `M8FLOW_API_URL`).
+
+---
+
+## 5. MinIO
 
 MinIO is **not** built from this repo. It uses the official image `minio/minio:RELEASE.2025-01-20T14-49-07Z` (see [docker/minio.production.docker-compose.yml](minio.production.docker-compose.yml) and [docker/m8flow-docker-compose.yml](m8flow-docker-compose.yml)). There is no `docker build` or `docker push` for MinIO from this repository.
 
@@ -131,6 +150,10 @@ docker push "${DOCKER_NAMESPACE}/m8flow-frontend:${TAG}"
 # Keycloak
 docker build --platform linux/amd64 -f docker/m8flow.keycloak.Dockerfile -t "${DOCKER_NAMESPACE}/m8flow-keycloak:${TAG}" .
 docker push "${DOCKER_NAMESPACE}/m8flow-keycloak:${TAG}"
+
+# MCP server (build context is m8flow-mcp/)
+docker build --platform linux/amd64 -f m8flow-mcp/Dockerfile -t "${DOCKER_NAMESPACE}/m8flow-mcp:${TAG}" m8flow-mcp
+docker push "${DOCKER_NAMESPACE}/m8flow-mcp:${TAG}"
 ```
 
 ---
@@ -144,6 +167,7 @@ When `use_docker_hub = true`, Terraform/ECS expects:
 | Backend  | `{docker_hub_namespace}/m8flow-backend:{docker_image_tag}`   |
 | Frontend | `{docker_hub_namespace}/m8flow-frontend:{docker_image_tag}`  |
 | Keycloak | `{docker_hub_namespace}/m8flow-keycloak:{docker_image_tag}`   |
+| MCP server | `{docker_hub_namespace}/m8flow-mcp:{docker_image_tag}`     |
 
 Use the same `DOCKER_NAMESPACE` and `TAG` (or equivalent) in Terraform (e.g. `terraform.tfvars`) when deploying.
 

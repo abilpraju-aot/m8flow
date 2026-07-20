@@ -51,6 +51,7 @@ Run with: `docker compose --profile init -f docker/m8flow-docker-compose.yml up 
 |---------|-------|---------|-------|----------------|
 | **m8flow-backend** | m8flow.backend.Dockerfile | Flask/uvicorn API (SpiffWorkflow + m8flow extensions). Runs migrations on startup. | `${M8FLOW_BACKEND_PORT:-6840}` -> `${M8FLOW_BACKEND_PORT:-6840}` | DB: `m8flow-db`. Keycloak: `keycloak-proxy:6842`. Redis/Celery, MinIO URLs set for Docker. BPMN/templates dirs: volumes `process_models_cache`, `templates_cache` at `/app/data/process_models`, `/app/data/templates`. Entrypoint chowns those dirs then runs app as user `app` (UID 1000). Default build target: `dev`; prod override uses target `prod`. |
 | **m8flow-frontend** | m8flow.frontend.Dockerfile | Nginx serving the built React app (core + extension). | `${M8FLOW_FRONTEND_PORT:-6841}` -> 8080 | Reads `.env` at build time (for example `MULTI_TENANT_ON`, `VITE_BACKEND_BASE_URL`). Listens on 8080 (non-root). Runs as user `nginx`. |
+| **m8flow-mcp** | ../m8flow-mcp/Dockerfile | MCP (Model Context Protocol) server exposing m8flow workflow tools to AI clients. Runs in `remote` (HTTP) mode. | `${M8FLOW_MCP_PORT:-6853}` -> 8000 | Secrets (Keycloak client, `M8FLOW_BEARER_TOKEN`, `M8FLOW_API_URL`, `MCP_OIDC_*`) from `.env`. Health: `GET /health`. Non-root user `mcp` (UID 10001). Also publishable standalone via [../m8flow-mcp/docker-compose.yml](../m8flow-mcp/docker-compose.yml). |
 
 ---
 

@@ -233,7 +233,32 @@ curl http://localhost:8000/health
 ```
 
 The bundled [docker-compose.yml](docker-compose.yml) runs the server in `remote` (HTTP) mode
-and reads secrets from your `.env`.
+and reads secrets from your `.env`. It is meant for isolated local development; the MCP server is
+also wired into the repo-wide stack at
+[docker/m8flow-docker-compose.yml](../docker/m8flow-docker-compose.yml) as the `m8flow-mcp`
+service (host port `M8FLOW_MCP_PORT`, default `6853`).
+
+---
+
+## CI/CD & Deployment
+
+The MCP server is a **first-class M8Flow component** and follows the exact same CI/CD pipeline as
+the backend, frontend, keycloak, and connector-proxy — there is no MCP-specific deployment model.
+
+| Stage | Where | What happens |
+|-------|-------|--------------|
+| PR / push CI | [.github/workflows/ci.yml](../.github/workflows/ci.yml) | `MCP Lint` (ruff) + `MCP Unit Tests` (pytest) run on any `m8flow-mcp/**` change and are part of the `Required CI` gate; the image is built (no push) in `Docker Build Dry Run` and boots in the E2E stack |
+| Release tag | [.github/workflows/create-release-tag.yml](../.github/workflows/create-release-tag.yml) | A shared `X.Y.Z-rc` tag is cut on `main` (MCP shares the same version as every other service) |
+| Image publish | [.github/workflows/deploy-docker.yml](../.github/workflows/deploy-docker.yml) | On the RC tag, `docker.io/m8flow/m8flow-mcp:<tag>` is built and pushed alongside the other images (with `-backup` tag preserved for rollback, provenance + SBOM) |
+| Deploy | [.github/workflows/deploy-aws.yml](../.github/workflows/deploy-aws.yml) | Manual `Deploy to AWS` (DEV/QA) verifies the image exists, renders the MCP ECS task definition with the new image, and rolls it out with `force-new-deployment` |
+
+**Rollback:** re-run `Deploy to AWS` with the previous `X.Y.Z-rc` tag. ECS rolls the service back
+to that task definition; the image-level `m8flow/m8flow-mcp:<tag>-backup` (kept by
+`deploy-docker.yml`) is the fallback if the tag itself must be restored.
+
+**Required GitHub secrets** for the ECS deploy (per DEV/QA environment): `MCP_TASK_DEF_FAMILY`,
+`MCP_CONTAINER_NAME`, `MCP_SERVICE_NAME` (mirroring the backend/frontend/keycloak/connector-proxy
+secrets already in use).
 
 ---
 

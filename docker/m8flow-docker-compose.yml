@@ -475,6 +475,39 @@ services:
       timeout: 5s
       retries: 20
 
+  m8flow-mcp:
+    container_name: m8flow-mcp
+    image: m8flow/m8flow-mcp
+    pull_policy: never
+    build:
+      context: ../m8flow-mcp
+      dockerfile: Dockerfile
+    env_file: ../.env
+    environment:
+      # Non-secret runtime config; secrets (CLIENT_SECRET, M8FLOW_BEARER_TOKEN,
+      # Keycloak creds, M8FLOW_API_URL, MCP_OIDC_*) are loaded from ../.env.
+      SERVER_TYPE: remote
+      HOST: "0.0.0.0"
+      PORT: "8000"
+      LOG_LEVEL: "${M8FLOW_MCP_LOG_LEVEL:-INFO}"
+      PYTHONUNBUFFERED: "1"
+      MCP_OIDC_REDIRECT_PATH: /oauth/callback
+      MCP_OIDC_REQUIRE_CONSENT: "false"
+    ports:
+      - "${M8FLOW_MCP_PORT:-6853}:8000"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)\" || exit 1",
+        ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    security_opt:
+      - no-new-privileges:true
+
 volumes:
   db-data:
     driver: local
