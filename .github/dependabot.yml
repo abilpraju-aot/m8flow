@@ -44,8 +44,13 @@ updates:
       # Local package (file:../m8flow-bpmn), updated in this repository.
       - dependency-name: "m8flow-bpmn"
     groups:
+      # react and react-dom must move together; first matching group wins.
+      react:
+        patterns: ["react", "react-dom", "@types/react", "@types/react-dom"]
+      # Majors come as their own PRs so one breaking bump cannot block the rest.
       npm-dependencies:
         patterns: ["*"]
+        update-types: ["minor", "patch"]
 
   # Keycloak protocol-mapper extension.
   - package-ecosystem: "maven"
@@ -64,6 +69,12 @@ updates:
     schedule:
       interval: "weekly"
     open-pull-requests-limit: 10
+    ignore:
+      # Runtime versions (Python 3.12, JDK LTS) are upgraded deliberately, not by tag bump.
+      - dependency-name: "python"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "eclipse-temurin"
+        update-types: ["version-update:semver-major"]
 
   # GitHub Actions used by the workflows.
   - package-ecosystem: "github-actions"
